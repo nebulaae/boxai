@@ -472,7 +472,7 @@ export const Login = () => {
           <span className="text-[26px]">✦</span>
         </div>
         <h1 className="text-[30px] font-extrabold tracking-[-0.7px] mb-1.5 text-white/90">
-          NeoAI
+          BoxAI
         </h1>
         <p className="text-[14px] text-white/40">Платформа нового поколения</p>
       </div>
