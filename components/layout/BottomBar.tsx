@@ -1,0 +1,124 @@
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
+import { Home, Brain, Sparkles, MessageCircle, UserRound } from 'lucide-react';
+import { useHaptic } from '@/hooks/useHaptic';
+import { cn } from '@/lib/utils';
+
+const items = [
+  { id: 1, href: '/', label: 'Главная', icon: Home },
+  { id: 2, href: '/models', label: 'Модели', icon: Brain },
+  { id: 3, href: '/generate', label: 'Создать', icon: Sparkles },
+  { id: 4, href: '/chats', label: 'Чаты', icon: MessageCircle },
+  { id: 5, href: '/profile', label: 'Профиль', icon: UserRound },
+] as const;
+
+export const BottomBar = () => {
+  const pathname = usePathname();
+  const haptic = useHaptic();
+  const [visible, setVisible] = useState(true);
+
+  const isChat = /^\/chats\/.+/.test(pathname);
+
+  const handleScroll = useCallback(() => {
+    let lastY = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const onScroll = () => {
+      const curr = window.scrollY;
+      setVisible(curr <= lastY || curr < 80);
+      lastY = curr;
+      clearTimeout(timer);
+      timer = setTimeout(() => setVisible(true), 1500);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isChat) return;
+    const cleanup = handleScroll();
+    const onActivity = () => setVisible(true);
+    ['touchstart', 'mousedown'].forEach((e) =>
+      window.addEventListener(e, onActivity, { passive: true })
+    );
+    return () => {
+      cleanup();
+      ['touchstart', 'mousedown'].forEach((e) =>
+        window.removeEventListener(e, onActivity)
+      );
+    };
+  }, [isChat, handleScroll]);
+
+  if (isChat) return null;
+
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href);
+
+  return (
+    <nav
+      aria-label="Нижняя навигация"
+      className={cn(
+        'flex sm:hidden fixed bottom-0 left-0 right-0 z-50 justify-center px-4',
+        'pb-[max(10px,env(safe-area-inset-bottom))]',
+        'transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+        !visible && 'translate-y-[120%]'
+      )}
+    >
+      {/* Glass pill */}
+      <div
+        className="flex items-stretch w-full max-w-sm
+        rounded-[22px] overflow-hidden
+        bg-zinc-950/85 backdrop-blur-3xl backdrop-saturate-200
+        border border-white/[.13]
+        shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_48px_rgba(0,0,0,0.55),0_4px_12px_rgba(0,0,0,0.3)]
+        p-1 gap-0.5"
+      >
+        {items.map((item) => {
+          const active = isActive(item.href);
+          const isCreate = item.id === 3;
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.id}
+              href={item.href}
+              onClick={() => {
+                if (isCreate) haptic.medium();
+                else haptic.selection();
+              }}
+              className={cn(
+                'flex-1 flex flex-col items-center justify-center gap-[3px] py-2.5 rounded-[16px]',
+                'select-none no-underline transition-all duration-200',
+                'active:scale-[0.88]',
+                isCreate
+                  ? 'bg-white/[.10] border border-white/[.16] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] text-white'
+                  : active
+                    ? 'bg-white/[.08] text-white'
+                    : 'text-white/40 hover:text-white/60 hover:bg-white/[.04]'
+              )}
+            >
+              <Icon
+                size={18}
+                strokeWidth={active || isCreate ? 2.2 : 1.6}
+                className="transition-all duration-200"
+              />
+              <span
+                className={cn(
+                  'text-[9.5px] font-medium leading-none whitespace-nowrap transition-all duration-200',
+                  active || isCreate ? 'text-white/80' : 'text-white/35'
+                )}
+              >
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+};
