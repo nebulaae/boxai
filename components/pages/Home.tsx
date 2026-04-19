@@ -149,7 +149,7 @@ export const Home = () => {
             <Sparkles size={14} className="text-white/60" />
           </div>
           <span className="text-[18px] font-bold tracking-[-0.4px] text-white/90">
-            NeoAI
+            BoxAI
           </span>
         </div>
 
