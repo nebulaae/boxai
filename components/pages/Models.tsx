@@ -9,21 +9,8 @@ import { ErrorComponent } from '@/components/states/Error';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-const TABS = [
-  { key: 'all', label: 'Все' },
-  { key: 'text', label: 'Текст' },
-  { key: 'image', label: 'Фото' },
-  { key: 'video', label: 'Видео' },
-  { key: 'audio', label: 'Аудио' },
-] as const;
-
-const CATEGORY_LABEL: Record<string, string> = {
-  text: 'Текст',
-  image: 'Фото',
-  video: 'Видео',
-  audio: 'Аудио',
-};
 const CAT_ICON: Record<string, string> = {
   text: '✦',
   image: '◈',
@@ -52,14 +39,30 @@ export const Models = () => {
   const [tab, setTab] = useState<string>('all');
   const router = useRouter();
   const haptic = useHaptic();
+  const t = useTranslations('Models');
   const { data: models, isLoading, isError, refetch } = useAIModels();
+
+  const TABS = [
+    { key: 'all', label: t('tabAll') },
+    { key: 'text', label: t('tabText') },
+    { key: 'image', label: t('tabImage') },
+    { key: 'video', label: t('tabVideo') },
+    { key: 'audio', label: t('tabAudio') },
+  ] as const;
+
+  const CATEGORY_LABEL: Record<string, string> = {
+    text: t('catText'),
+    image: t('catImage'),
+    video: t('catVideo'),
+    audio: t('catAudio'),
+  };
 
   if (isError)
     return (
       <div className="flex items-center justify-center min-h-svh p-6">
         <ErrorComponent
-          title="Ошибка загрузки"
-          description="Не удалось получить список моделей."
+          title={t('error')}
+          description={t('errorDescription')}
           onRetry={refetch}
         />
       </div>
@@ -89,7 +92,7 @@ export const Models = () => {
       >
         <div className="max-w-2xl mx-auto">
           <span className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
-            Модели
+            {t('title')}
           </span>
         </div>
       </header>
@@ -100,14 +103,14 @@ export const Models = () => {
           className="max-w-2xl mx-auto flex gap-1.5 px-4 py-2.5 overflow-x-auto"
           style={{ scrollbarWidth: 'none' }}
         >
-          {TABS.map((t) => {
-            const active = tab === t.key;
+          {TABS.map((t_tab) => {
+            const active = tab === t_tab.key;
             return (
               <button
-                key={t.key}
+                key={t_tab.key}
                 onClick={() => {
                   haptic.selection();
-                  setTab(t.key);
+                  setTab(t_tab.key);
                 }}
                 className={cn(
                   'shrink-0 px-4 py-1.5 rounded-full text-[12px] font-semibold cursor-pointer whitespace-nowrap',
@@ -117,7 +120,7 @@ export const Models = () => {
                     : 'bg-white/[.04] border border-white/[.07] text-white/35 hover:text-white/50 hover:bg-white/[.06]'
                 )}
               >
-                {t.label}
+                {t_tab.label}
               </button>
             );
           })}
@@ -178,7 +181,7 @@ export const Models = () => {
                       {m.versions && m.versions.length > 1 && (
                         <>
                           <span className="opacity-40">·</span>
-                          <span>{m.versions.length} версии</span>
+                          <span>{t('versions', { count: m.versions.length })}</span>
                         </>
                       )}
                     </p>

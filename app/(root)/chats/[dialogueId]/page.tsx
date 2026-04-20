@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
 import { localize } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 /* ── Types ── */
 interface MediaItem {
@@ -232,6 +233,7 @@ function AudioPlayer({ src }: { src: string }) {
 export default function ChatPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations('ChatPage');
   const params = useParams();
   const searchParams = useSearchParams();
   const dialogueId = params?.dialogueId as string | undefined;
@@ -298,8 +300,8 @@ export default function ChatPage() {
     if (modelName && activeVersion) return `${modelName} · ${activeVersion}`;
     if (modelName) return modelName;
     if (activeVersion) return activeVersion;
-    if (msgs.length > 0) return msgs[0].version || msgs[0].model || 'Диалог';
-    return 'Диалог';
+    if (msgs.length > 0) return msgs[0].version || msgs[0].model || t('defaultTitle');
+    return t('defaultTitle');
   })();
 
   const scrollToBottom = useCallback(() => {
@@ -307,7 +309,7 @@ export default function ChatPage() {
   }, []);
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -321,7 +323,7 @@ export default function ChatPage() {
     if (prevProcessingRef.current && !isProcessing && msgs.length > 0)
       queryClient.invalidateQueries({ queryKey: queryKeys.user });
     prevProcessingRef.current = isProcessing;
-  }, [isProcessing, queryClient]);
+  }, [isProcessing, queryClient, msgs.length]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -338,12 +340,12 @@ export default function ChatPage() {
         (f) => f.type === fileType
       ).length;
       if (limit === 0) {
-        toast.error(`Модель не принимает ${fileType}`);
+        toast.error(t('errorModelNoMedia', { type: fileType }));
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
       if (currentCount >= limit) {
-        toast.error(`Максимум ${limit} файл(ов) типа ${fileType}`);
+        toast.error(t('errorMaxFiles', { limit, type: fileType }));
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
@@ -355,7 +357,7 @@ export default function ChatPage() {
         { url: res.url, type: res.type, file },
       ]);
     } catch {
-      toast.error('Ошибка загрузки файла');
+      toast.error(t('errorFileUpload'));
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -367,7 +369,7 @@ export default function ChatPage() {
     if (isHistoryLoading) return;
     if (isProcessing) {
       haptic.warning();
-      toast('Дождитесь окончания генерации');
+      toast(t('waitProcessing'));
       return;
     }
     if (!text.trim() && uploadedFiles.length === 0) return;
@@ -378,7 +380,7 @@ export default function ChatPage() {
     });
     if (!techName) {
       haptic.error();
-      toast.error('Модель не определена. Вернитесь и выберите снова.');
+      toast.error(t('errorModelUndefined'));
       return;
     }
     haptic.light();
@@ -387,7 +389,7 @@ export default function ChatPage() {
       format: 'url',
       input: f.url,
     }));
-    const safeText = text.trim() || 'Опиши изображение';
+    const safeText = text.trim() || 'Describe this content';
     const inputs = convertMediaToInputs(safeText, oldFormatMedia);
     const sentText = text;
     setText('');
@@ -467,13 +469,13 @@ export default function ChatPage() {
             {chatTitle}
           </p>
           {isHistoryLoading && (
-            <span className="text-[11px] text-white/35">Загрузка...</span>
+            <span className="text-[11px] text-white/35">{t('loading')}...</span>
           )}
           {!isHistoryLoading && isProcessing && (
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse" />
               <span className="text-[11px] text-amber-400/80 font-medium">
-                Генерация…
+                {t('generating')}…
               </span>
             </div>
           )}
@@ -505,14 +507,14 @@ export default function ChatPage() {
               </svg>
             </div>
             <p className="text-[14px] text-white/40 max-w-[200px] leading-relaxed">
-              Напишите что-нибудь, чтобы начать
+              {t('emptyChatSubtitle')}
             </p>
 
             {/* Roles */}
             {showRoles && (
               <div className="w-full max-w-sm mt-1">
                 <p className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/30 mb-3">
-                  Или выберите ассистента
+                  {t('selectAssistant')}
                 </p>
                 <div className="flex flex-col gap-1.5">
                   {roles!.slice(0, 5).map((role) => (
@@ -596,7 +598,7 @@ export default function ChatPage() {
                                 />
                               ) : (
                                 <div className="px-2.5 py-1.5 bg-white/10 rounded-lg text-xs text-white/70">
-                                  🎵 Аудио
+                                  🎵 {t('audio')}
                                 </div>
                               )}
                             </button>
@@ -628,7 +630,7 @@ export default function ChatPage() {
                         className="px-4 py-3 rounded-[18px_18px_18px_4px]
                         bg-red-500/10 border border-red-500/20 text-red-400/80 text-[14px]"
                       >
-                        {msg.error || 'Ошибка генерации'}
+                        {msg.error || t('errorGeneration')}
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2">
@@ -709,7 +711,7 @@ export default function ChatPage() {
                               className="px-4 py-3 rounded-[18px_18px_18px_4px]
                             bg-white/[.04] border border-white/[.07] text-[13px] text-white/40 italic"
                             >
-                              Ответ получен
+                              {t('responseReceived')}
                             </div>
                           )}
                       </div>
@@ -802,69 +804,63 @@ export default function ChatPage() {
           </div>
         )}
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-2.5">
           {canAttachMedia && (
-            <>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={upload.isPending}
-                className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full
-                  bg-white/[.05] border border-white/[.09]
-                  active:scale-[0.88] transition-all duration-150 hover:bg-white/[.08]"
-              >
-                {upload.isPending ? (
-                  <Loader2 size={15} className="animate-spin text-white/40" />
-                ) : (
-                  <ImagePlus size={15} className="text-white/40" />
-                )}
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept={acceptTypes}
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={upload.isPending}
+              className="flex items-center justify-center w-11 h-11 rounded-2xl shrink-0
+                bg-white/[.05] border border-white/[.09]
+                active:scale-90 transition-all duration-150 hover:bg-white/[.08] disabled:opacity-50"
+            >
+              {upload.isPending ? (
+                <Loader2 size={20} className="animate-spin text-white/30" />
+              ) : (
+                <ImagePlus size={20} className="text-white/50" />
+              )}
+            </button>
           )}
-          <textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              isHistoryLoading ? 'Загрузка диалога...' : 'Напишите сообщение...'
-            }
-            rows={1}
-            className="flex-1 resize-none outline-none px-3.5 py-2.5 rounded-2xl
-              bg-white/[.05] border border-white/[.09]
-              text-[15px] leading-[1.45] text-white/90 max-h-[120px] overflow-y-auto
-              placeholder:text-white/25 transition-all duration-150
-              focus:bg-white/[.07] focus:border-white/[.15]"
-            style={{ fontSize: 16 }}
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept={acceptTypes}
+            onChange={handleFileUpload}
           />
+          <div className="flex-1 relative">
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t('inputPlaceholder')}
+              className="w-full box-border block resize-none py-[11px] px-4 rounded-2xl
+                bg-zinc-900/50 border border-white/[.08] outline-none
+                text-[15px] text-white/90 placeholder:text-white/20
+                focus:border-white/[.14] transition-all duration-200"
+              style={{ maxHeight: '150px' }}
+            />
+          </div>
           <button
-            onClick={() => handleSend()}
+            onClick={handleSend}
             disabled={isSendDisabled}
             className={cn(
-              'shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-white',
-              'bg-white/[.09] border border-white/[.14]',
-              'active:scale-[0.88] transition-all duration-150 hover:bg-white/[.12]',
-              isSendDisabled && 'opacity-40'
+              'flex items-center justify-center w-11 h-11 rounded-2xl shrink-0',
+              'transition-all duration-200 active:scale-90',
+              isSendDisabled
+                ? 'bg-white/[.03] text-white/10'
+                : 'bg-white/[.10] text-white/80 border border-white/[.10] shadow-[0_4px_12px_rgba(255,255,255,0.02)]'
             )}
           >
             {generate.isPending ? (
-              <Loader2 size={15} className="animate-spin" />
+              <Loader2 size={19} className="animate-spin" />
             ) : (
-              <Send size={15} />
+              <Send size={19} />
             )}
           </button>
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse-dot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
-      `}</style>
     </div>
   );
 }

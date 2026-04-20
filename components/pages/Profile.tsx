@@ -29,12 +29,8 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
-
-const STATUS: Record<string, { icon: string; color: string; label: string }> = {
-  completed: { icon: '✓', color: '#6ee7b7', label: 'Готово' },
-  error: { icon: '✕', color: '#fca5a5', label: 'Ошибка' },
-  processing: { icon: '⏳', color: '#fde68a', label: 'Обработка' },
-};
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '../layout/LocaleSwitcher';
 
 const Card = ({
   children,
@@ -65,6 +61,7 @@ const Card = ({
 export const Profile = () => {
   const router = useRouter();
   const haptic = useHaptic();
+  const t = useTranslations('Profile');
   const { user: tgUser, logout } = useAuth();
   const { bot } = useBot();
   const { data: userData, isLoading: userLoading } = useUser();
@@ -81,6 +78,23 @@ export const Profile = () => {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
 
+  const STATUS: Record<
+    string,
+    { icon: string; color: string; label: string }
+  > = {
+    completed: {
+      icon: '✓',
+      color: '#6ee7b7',
+      label: t('statusCompleted'),
+    },
+    error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
+    processing: {
+      icon: '⏳',
+      color: '#fde68a',
+      label: t('statusProcessing'),
+    },
+  };
+
   const tokens = userData?.user?.tokens ?? 0;
   const isPremium = userData?.user?.premium ?? false;
   const premiumEnd = userData?.user?.premium_end;
@@ -88,7 +102,7 @@ export const Profile = () => {
   const refStats = (refData as any)?.stats;
   const name = tgUser
     ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim()
-    : 'Пользователь';
+    : t('user');
   const username = tgUser?.username || '';
   const userId = tgUser?.id;
   const referralLink =
@@ -99,7 +113,7 @@ export const Profile = () => {
   const handleTopUp = () => {
     haptic.medium();
     if (!bot?.bot_id) {
-      toast.error('Бот не определён');
+      toast.error(t('botNotDefined'));
       return;
     }
     import('@/lib/api').then(({ default: api }) => {
@@ -107,9 +121,9 @@ export const Profile = () => {
         .get('/api/payment-link', { params: { bot_id: bot.bot_id } })
         .then(({ data }) => {
           if (data.success && data.url) window.open(data.url, '_blank');
-          else toast.error('Ссылка недоступна');
+          else toast.error(t('paymentLinkUnavailable'));
         })
-        .catch(() => toast.error('Ошибка получения ссылки'));
+        .catch(() => toast.error(t('paymentLinkError')));
     });
   };
 
@@ -117,7 +131,7 @@ export const Profile = () => {
     haptic.success();
     navigator.clipboard.writeText(token).then(() => {
       setCopiedToken(token);
-      toast.success('Скопировано');
+      toast.success(t('tokenCopied'));
       setTimeout(() => setCopiedToken(null), 2000);
     });
   };
@@ -127,7 +141,7 @@ export const Profile = () => {
     haptic.success();
     navigator.clipboard.writeText(referralLink).then(() => {
       setCopiedRef(true);
-      toast.success('Ссылка скопирована');
+      toast.success(t('refLinkCopied'));
       setTimeout(() => setCopiedRef(false), 2000);
     });
   };
@@ -136,12 +150,12 @@ export const Profile = () => {
     haptic.light();
     generateToken.mutate(undefined, {
       onSuccess: (d) => {
-        toast.success('Токен создан');
+        toast.success(t('newTokenCreated'));
         handleCopyToken(d.token);
       },
       onError: () => {
         haptic.error();
-        toast.error('Не удалось создать токен');
+        toast.error(t('tokenCreateError'));
       },
     });
   };
@@ -153,20 +167,23 @@ export const Profile = () => {
         className="sticky top-0 z-40 flex items-center justify-between px-5 pt-5 pb-4
         bg-gradient-to-b from-zinc-950/95 to-zinc-950/0 backdrop-blur-2xl border-b border-white/[.05]"
       >
-        <span className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
-          Профиль
+        <span className="text-base font-bold tracking-[-0.5px] text-white/90">
+          {t('title')}
         </span>
-        <button
-          onClick={() => {
-            haptic.heavy();
-            logout();
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
-            bg-red-500/10 border border-red-500/20 text-red-400/80 text-[12px] font-semibold
-            active:scale-[0.94] transition-all duration-150 hover:bg-red-500/15"
-        >
-          <LogOut size={12} /> Выйти
-        </button>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+          <button
+            onClick={() => {
+              haptic.heavy();
+              logout();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+              bg-red-500/10 border border-red-500/20 text-red-400/80 text-[12px] font-semibold
+              active:scale-[0.94] transition-all duration-150 hover:bg-red-500/15 h-9"
+          >
+            <LogOut size={12} /> {t('logout')}
+          </button>
+        </div>
       </header>
 
       <div className="px-4 pt-4 flex flex-col gap-4">
@@ -208,7 +225,7 @@ export const Profile = () => {
               {isPremium && premiumEnd && (
                 <p className="text-[11px] text-amber-400/60 mt-0.5">
                   Premium до{' '}
-                  {new Date(premiumEnd * 1000).toLocaleDateString('ru-RU')}
+                  {new Date(premiumEnd * 1000).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -220,7 +237,7 @@ export const Profile = () => {
           <Card onClick={handleTopUp} className="p-4 w-full text-left">
             <div className="flex justify-between items-center mb-3">
               <span className="text-[10px] font-semibold tracking-[0.5px] uppercase text-white/30">
-                Токены
+                {t('tokens')}
               </span>
               <Zap size={12} className="text-amber-400/50" />
             </div>
@@ -235,7 +252,7 @@ export const Profile = () => {
               </div>
             )}
             <span className="text-[11px] font-medium text-white/35 flex items-center gap-1">
-              Пополнить <ExternalLink size={9} />
+              {t('topUp')} <ExternalLink size={9} />
             </span>
           </Card>
 
@@ -248,7 +265,7 @@ export const Profile = () => {
           >
             <div className="flex justify-between items-center mb-3">
               <span className="text-[10px] font-semibold tracking-[0.5px] uppercase text-white/30">
-                Рефералы
+                {t('referrals')}
               </span>
               <Users size={12} className="text-white/25" />
             </div>
@@ -260,7 +277,10 @@ export const Profile = () => {
               </span>
             )}
             <span className="text-[11px] text-white/30 flex items-center gap-1">
-              {refStats?.earned ?? refStats?.total_tokens ?? 0} ◈ заработано
+              {t('earned', {
+                amount: refStats?.earned ?? refStats?.total_tokens ?? 0,
+              })}{' '}
+              ◈
               <ChevronRight size={10} />
             </span>
           </Card>
@@ -271,7 +291,7 @@ export const Profile = () => {
           <Card className="p-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-semibold tracking-[0.5px] uppercase text-white/30">
-                Реферальная ссылка
+                {t('referralLink')}
               </span>
               <LinkIcon size={11} className="text-white/25" />
             </div>
@@ -290,9 +310,7 @@ export const Profile = () => {
                 )}
               </button>
             </div>
-            <p className="text-[10px] text-white/25 mt-2.5">
-              Поделитесь ссылкой — получайте бонусы за каждого приглашённого
-            </p>
+            <p className="text-[10px] text-white/25 mt-2.5">{t('shareLink')}</p>
           </Card>
         )}
 
@@ -303,7 +321,7 @@ export const Profile = () => {
         <div>
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/30">
-              API-токены
+              {t('apiTokens')}
             </span>
             <button
               onClick={handleGenerateToken}
@@ -317,32 +335,30 @@ export const Profile = () => {
               ) : (
                 <Key size={10} />
               )}{' '}
-              Создать
+              {t('createToken')}
             </button>
           </div>
 
           {!apiTokens || apiTokens.length === 0 ? (
-            <p className="text-[12px] text-white/30 px-1">
-              Нет токенов. Создайте для доступа к API.
-            </p>
+            <p className="text-[12px] text-white/30 px-1">{t('noTokens')}</p>
           ) : (
             <div className="flex flex-col gap-2">
-              {apiTokens.map((t: any) => (
+              {apiTokens.map((t_token: any) => (
                 <Card
-                  key={t.id}
+                  key={t_token.id}
                   className="flex items-center gap-2.5 px-4 py-3"
                 >
                   <code className="flex-1 text-[11px] text-white/40 overflow-hidden text-ellipsis whitespace-nowrap font-mono">
-                    {t.token}
+                    {t_token.token}
                   </code>
                   <span className="text-[10px] text-white/25 flex-shrink-0">
-                    {t.generations} req
+                    {t_token.generations} req
                   </span>
                   <button
-                    onClick={() => handleCopyToken(t.token)}
+                    onClick={() => handleCopyToken(t_token.token)}
                     className="flex-shrink-0 p-1.5 rounded-lg hover:bg-white/[.06] active:scale-[0.88] transition-all duration-150"
                   >
-                    {copiedToken === t.token ? (
+                    {copiedToken === t_token.token ? (
                       <Check size={13} className="text-emerald-400/80" />
                     ) : (
                       <Copy size={13} className="text-white/35" />
@@ -360,7 +376,7 @@ export const Profile = () => {
         {/* ── History ── */}
         <div className="pb-2">
           <span className="block text-[10px] font-semibold tracking-[0.6px] uppercase text-white/30 mb-3">
-            История генераций
+            {t('generationHistory')}
           </span>
           {reqLoading ? (
             <div className="flex flex-col gap-3">
@@ -375,7 +391,9 @@ export const Profile = () => {
               ))}
             </div>
           ) : requests.length === 0 ? (
-            <p className="text-[13px] text-white/30 py-4">Нет генераций</p>
+            <p className="text-[13px] text-white/30 py-4">
+              {t('noGenerations')}
+            </p>
           ) : (
             <div className="flex flex-col gap-1">
               {requests.map((req) => {
@@ -433,10 +451,11 @@ export const Profile = () => {
                 >
                   {isFetchingNextPage ? (
                     <>
-                      <Loader2 size={13} className="animate-spin" /> Загрузка…
+                      <Loader2 size={13} className="animate-spin" />{' '}
+                      {t('loading')}
                     </>
                   ) : (
-                    'Загрузить ещё'
+                    t('loadMore')
                   )}
                 </button>
               )}

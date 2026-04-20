@@ -17,6 +17,7 @@ import { MessageSquarePlus, Loader2, ChevronRight } from 'lucide-react';
 import { cn, timeAgo } from '@/lib/utils';
 import { toast as chatsToast } from 'sonner';
 import { useHaptic as useChatsHaptic } from '@/hooks/useHaptic';
+import { useTranslations } from 'next-intl';
 
 function cacheDialogueModel(
   dialogueId: string,
@@ -36,6 +37,7 @@ export const Chats = () => {
   const router = useChatsRouter();
   const searchParams = useSearchParams();
   const haptic = useChatsHaptic();
+  const t = useTranslations('Chats');
   const modelParam = searchParams.get('model');
   const roleParam = searchParams.get('role');
   const {
@@ -63,7 +65,7 @@ export const Chats = () => {
       ? roles?.find((r) => r.id === parseInt(roleParam))
       : null;
     if (roleParam && !role) {
-      chatsToast.error('Ассистент не найден');
+      chatsToast.error(t('assistantNotFound'));
       router.replace('/chats');
       return;
     }
@@ -73,7 +75,7 @@ export const Chats = () => {
     if (modelParam) {
       const model = models?.find((m) => m.tech_name === modelParam);
       if (!model) {
-        chatsToast.error('Модель не найдена');
+        chatsToast.error(t('modelNotFound'));
         router.replace('/chats');
         return;
       }
@@ -90,7 +92,7 @@ export const Chats = () => {
       )?.label;
     }
     if (!techName) {
-      chatsToast.error('Подходящая модель не найдена');
+      chatsToast.error(t('suitableModelNotFound'));
       router.replace('/chats');
       return;
     }
@@ -102,14 +104,14 @@ export const Chats = () => {
       ...(role ? { role: String(role.id) } : {}),
     });
     router.replace(`/chats/new?${params.toString()}`);
-  }, [modelParam, roleParam, models, roles]);
+  }, [modelParam, roleParam, models, roles, t, router]);
 
   if (isError)
     return (
       <div className="flex items-center justify-center min-h-screen p-6">
         <ChatsError
-          title="Ошибка"
-          description="Не удалось загрузить чаты."
+          title={t('error')}
+          description={t('errorLoadChats')}
           onRetry={refetch}
         />
       </div>
@@ -125,7 +127,7 @@ export const Chats = () => {
           </div>
         </div>
         <p className="text-[13px] text-white/35 tracking-wide">
-          Открываем чат…
+          {t('openingChat')}
         </p>
       </div>
     );
@@ -140,11 +142,11 @@ export const Chats = () => {
       >
         <div className="flex flex-col gap-0.5">
           <span className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
-            Чаты
+            {t('title')}
           </span>
           {!isLoading && chats.length > 0 && (
             <span className="text-[11px] text-white/30 font-medium">
-              {chats.length} диалогов
+              {chats.length} {t('dialogue')}
             </span>
           )}
         </div>
@@ -157,7 +159,7 @@ export const Chats = () => {
             bg-white/[.06] border border-white/[.10]
             shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]
             transition-all duration-200 active:scale-[0.88] active:bg-white/[.10]"
-          title="Новый чат"
+          title={t('newChat')}
         >
           <MessageSquarePlus className="size-[18px] text-white/50 group-active:text-white/80 transition-colors" />
         </button>
@@ -175,7 +177,7 @@ export const Chats = () => {
           <>
             {chats.map((chat) => {
               const displayName =
-                chat.version || chat.title || chat.model || 'Диалог';
+                chat.version || chat.title || chat.model || t('dialogue');
               return (
                 <button
                   key={chat.dialogue_id}
@@ -238,10 +240,10 @@ export const Chats = () => {
                   {isFetchingNextPage ? (
                     <>
                       <Loader2 className="size-3.5 animate-spin" />
-                      Загрузка…
+                      {t('loading')}
                     </>
                   ) : (
-                    'Загрузить ещё'
+                    t('loadMore')
                   )}
                 </button>
               </div>

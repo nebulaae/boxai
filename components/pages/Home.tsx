@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ErrorComponent } from '@/components/states/Error';
 import { localize } from '@/lib/utils';
 import { Sparkles, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const Shimmer = ({
   w,
@@ -69,6 +70,7 @@ const SectionTitle = ({
 
 export const Home = () => {
   const router = useRouter();
+  const t = useTranslations('Home');
   const {
     data: models,
     isLoading: modelsLoading,
@@ -127,8 +129,8 @@ export const Home = () => {
     return (
       <div className="flex items-center justify-center min-h-screen p-6">
         <ErrorComponent
-          title="Ошибка"
-          description="Не удалось загрузить данные."
+          title={t('error')}
+          description={t('errorLoadData')}
           onRetry={refetch}
         />
       </div>
@@ -170,8 +172,11 @@ export const Home = () => {
       <div className="px-4 pt-5 flex flex-col gap-8">
         {/* ── Models ── */}
         <section>
-          <SectionTitle action="Все →" onAction={() => router.push('/models')}>
-            Модели
+          <SectionTitle
+            action={`${t('all')} →`}
+            onAction={() => router.push('/models')}
+          >
+            {t('models')}
           </SectionTitle>
           <div className="grid grid-cols-4 gap-3">
             {modelsLoading
@@ -220,8 +225,11 @@ export const Home = () => {
 
         {/* ── Assistants ── */}
         <section>
-          <SectionTitle action="Все →" onAction={() => router.push('/chats')}>
-            Ассистенты
+          <SectionTitle
+            action={`${t('all')} →`}
+            onAction={() => router.push('/chats')}
+          >
+            {t('aiAssistants')}
           </SectionTitle>
           <div
             className="flex gap-3 overflow-x-auto -mx-1 px-1"
@@ -269,7 +277,7 @@ export const Home = () => {
 
         {/* ── Trending ── */}
         <section className="pb-2">
-          <SectionTitle>В тренде</SectionTitle>
+          <SectionTitle>{t('trending')}</SectionTitle>
           <div className="flex flex-col gap-2">
             {trendsLoading
               ? Array.from({ length: 4 }).map((_, i) => (
@@ -280,22 +288,22 @@ export const Home = () => {
                     [
                       {
                         icon: '✦',
-                        title: 'Создай свой аватар',
+                        title: t('trend1'),
                         href: '/generate',
                       },
                       {
                         icon: '◈',
-                        title: 'Возможности GPT-4o',
+                        title: t('trend2'),
                         href: '/chats',
                       },
                       {
                         icon: '▶',
-                        title: 'Генерация видео',
+                        title: t('trend3'),
                         href: '/generate',
                       },
                       {
                         icon: '♫',
-                        title: 'Создание музыки',
+                        title: t('trend4'),
                         href: '/generate',
                       },
                     ] as any[]

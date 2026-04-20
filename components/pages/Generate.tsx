@@ -24,6 +24,7 @@ import api from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 function useGenerationStatus(dialogueId: string | null, enabled: boolean) {
   return useQuery({
@@ -71,6 +72,7 @@ const PillBtn = ({
 
 const ModelCard = ({ m, onClick }: { m: any; onClick: () => void }) => {
   const haptic = useHaptic();
+  const t = useTranslations('Generate');
   const cost =
     m.versions?.find((v: any) => v.default)?.cost ?? m.versions?.[0]?.cost ?? 1;
   const avatarUrl =
@@ -104,7 +106,7 @@ const ModelCard = ({ m, onClick }: { m: any; onClick: () => void }) => {
         </p>
         <p className="text-[11px] text-white/35 mt-0.5">
           {m.versions?.length > 1
-            ? `${m.versions.length} версии`
+            ? t('versions', { count: m.versions.length })
             : m.versions?.[0]?.label || ''}
         </p>
       </div>
@@ -132,6 +134,7 @@ export const Generate = () => {
   const searchParams = useSearchParams();
   const modelParam = searchParams.get('model');
   const haptic = useHaptic();
+  const t = useTranslations('Generate');
   const queryClient = useQueryClient();
 
   const [selectedTech, setSelectedTech] = useState<string | null>(modelParam);
@@ -150,7 +153,7 @@ export const Generate = () => {
   const generate = useGenerateAI();
   const upload = useUpload();
   const models = (allModels || []).filter(
-    (m) => !m.categories?.includes('text')
+    (m) => !m.categories?.includes('text') && m.mainCategory !== 'text'
   );
   const selected = models.find((m) => m.tech_name === selectedTech);
   const currentVersion =
@@ -189,7 +192,7 @@ export const Generate = () => {
         { type: uploaded.type, url: uploaded.url, file: files[0] },
       ]);
     } catch {
-      toast.error('Ошибка загрузки файла');
+      toast.error(t('errorFileUpload'));
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -197,7 +200,7 @@ export const Generate = () => {
   const handleGenerate = () => {
     if (!selected) return;
     if (!prompt.trim() && media.length === 0) {
-      toast.error('Введите описание или прикрепите файл');
+      toast.error(t('errorEmptyFields'));
       return;
     }
     haptic.medium();
@@ -230,15 +233,15 @@ export const Generate = () => {
             } catch {}
           }
           if (data.status === 'processing') {
-            toast('Генерация запущена…');
+            toast(t('generationStarted'));
             setPendingId(dialogueId || null);
             setIsWaiting(!!dialogueId);
           } else if (dialogueId) {
             haptic.success();
-            toast.success('Готово!');
+            toast.success(t('done'));
             router.push(`/chats/${dialogueId}`);
           } else {
-            toast.success('Генерация завершена');
+            toast.success(t('generationCompleted'));
           }
         },
       }
@@ -250,16 +253,16 @@ export const Generate = () => {
     if (lastMessage.status === 'completed') {
       haptic.success();
       setIsWaiting(false);
-      toast.success('Готово!');
+      toast.success(t('done'));
       if (pendingId) router.push(`/chats/${pendingId}`);
       setPendingId(null);
     } else if (lastMessage.status === 'error') {
       haptic.error();
       setIsWaiting(false);
-      toast.error('Ошибка: ' + (lastMessage.error || 'Неизвестная ошибка'));
+      toast.error(t('errorPrefix') + (lastMessage.error || t('unknownError')));
       setPendingId(null);
     }
-  }, [lastMessage, isWaiting, pendingId]);
+  }, [lastMessage, isWaiting, pendingId, t, router]);
 
   /* ── Waiting screen ── */
   if (isWaiting && pendingId) {
@@ -281,17 +284,17 @@ export const Generate = () => {
         <div className="flex flex-col gap-1.5">
           <p className="text-[20px] font-bold tracking-[-0.4px] text-white/90">
             {status === 'completed'
-              ? 'Готово!'
+              ? t('done')
               : status === 'error'
-                ? 'Ошибка'
-                : 'Генерация…'}
+                ? t('errorLabel')
+                : t('generating')}
           </p>
           <p className="text-[13px] text-white/40 max-w-[260px] leading-[1.5]">
             {status === 'completed'
-              ? 'Переход к результату…'
+              ? t('redirecting')
               : status === 'error'
-                ? lastMessage?.error || 'Произошла ошибка'
-                : 'Нейросеть обрабатывает запрос. Это займёт несколько секунд.'}
+                ? lastMessage?.error || t('unknownError')
+                : t('generatingDescription')}
           </p>
         </div>
         <div className="flex gap-1.5">
@@ -311,7 +314,7 @@ export const Generate = () => {
           }}
           className="text-[12px] text-white/30 bg-transparent border-none cursor-pointer hover:text-white/50 transition-colors"
         >
-          Перейти в чат
+          {t('goToChat')}
         </button>
         <style>{`@keyframes pulse-dot{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:.8}}`}</style>
       </div>
@@ -352,7 +355,7 @@ export const Generate = () => {
                 bg-transparent border-none cursor-pointer px-2 py-1.5 rounded-xl
                 hover:text-white/70 active:scale-[0.92] transition-all duration-150"
             >
-              <ChevronLeft size={16} /> Назад
+              <ChevronLeft size={16} /> {t('back')}
             </button>
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-[9px] overflow-hidden border border-white/[.10]">
@@ -381,7 +384,7 @@ export const Generate = () => {
             {/* Version selector */}
             {selected.versions && selected.versions.length > 1 && (
               <div>
-                <SectionLabel>Версия</SectionLabel>
+                <SectionLabel>{t('versionLabel')}</SectionLabel>
                 <div className="flex flex-wrap gap-2">
                   {selected.versions.map((v) => (
                     <PillBtn
@@ -399,11 +402,11 @@ export const Generate = () => {
 
             {/* Prompt */}
             <div>
-              <SectionLabel>Описание</SectionLabel>
+              <SectionLabel>{t('descriptionLabel')}</SectionLabel>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Опишите, что хотите создать..."
+                placeholder={t('promptPlaceholder')}
                 rows={4}
                 className="w-full resize-none outline-none px-4 py-[14px] rounded-2xl
                   bg-white/[.04] border border-white/[.08]
@@ -418,7 +421,7 @@ export const Generate = () => {
             {/* Aspect ratio */}
             {aspectParam && (
               <div>
-                <SectionLabel>Соотношение сторон</SectionLabel>
+                <SectionLabel>{t('aspectRatioLabel')}</SectionLabel>
                 <div className="flex flex-wrap gap-2">
                   {aspectParam.values?.map((val: string) => (
                     <PillBtn
@@ -451,7 +454,7 @@ export const Generate = () => {
                     className="flex items-center gap-2 text-[12px] text-white/35 bg-transparent border-none cursor-pointer py-1.5
                     hover:text-white/50 transition-colors"
                   >
-                    <Settings2 size={13} /> Дополнительные параметры
+                    <Settings2 size={13} /> {t('extraParamsLabel')}
                     <ChevronDown
                       size={13}
                       className={cn(
@@ -504,7 +507,7 @@ export const Generate = () => {
                                   }))
                                 }
                                 className="w-full box-border px-3.5 py-[10px] rounded-xl text-[13px] outline-none text-white/80
-                              bg-white/[.04] border border-white/[.08] focus:border-white/[.14] transition-colors"
+                               bg-white/[.04] border border-white/[.08] focus:border-white/[.14] transition-colors"
                               />
                             )}
                           </div>
@@ -518,7 +521,7 @@ export const Generate = () => {
             {canAttach && (
               <div>
                 <div className="flex items-center justify-between mb-2.5">
-                  <SectionLabel>Медиафайл</SectionLabel>
+                  <SectionLabel>{t('mediaLabel')}</SectionLabel>
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={upload.isPending}
@@ -530,7 +533,7 @@ export const Generate = () => {
                     ) : (
                       <ImagePlus size={12} />
                     )}{' '}
-                    Прикрепить
+                    {t('attachLabel')}
                   </button>
                 </div>
                 <input
@@ -603,12 +606,12 @@ export const Generate = () => {
               {generate.isPending || upload.isPending ? (
                 <>
                   <Loader2 size={17} className="animate-spin" />
-                  {upload.isPending ? 'Загрузка…' : 'Генерация…'}
+                  {upload.isPending ? t('uploading') : t('generatingBtn')}
                 </>
               ) : (
                 <>
                   <Sparkles size={17} />
-                  Создать
+                  {t('createBtn')}
                 </>
               )}
             </button>
@@ -620,10 +623,10 @@ export const Generate = () => {
 
   /* ── Model picker ── */
   const catOrder = ['image', 'video', 'audio'] as const;
-  const catLabel: Record<string, string> = {
-    image: 'Изображения',
-    video: 'Видео',
-    audio: 'Аудио',
+  const CAT_LABEL: Record<string, string> = {
+    image: t('catImages'),
+    video: t('catVideo'),
+    audio: t('catAudio'),
   };
   const catIcon: Record<string, string> = {
     image: '◈',
@@ -639,10 +642,10 @@ export const Generate = () => {
       >
         <div className="max-w-[700px] mx-auto">
           <p className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
-            Создать
+            {t('pickerTitle')}
           </p>
           <p className="text-[12px] text-white/35 mt-0.5 font-medium">
-            Выберите нейросеть
+            {t('pickerSubtitle')}
           </p>
         </div>
       </header>
@@ -671,7 +674,7 @@ export const Generate = () => {
                         {catIcon[cat]}
                       </span>
                       <span className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/30">
-                        {catLabel[cat]}
+                        {CAT_LABEL[cat]}
                       </span>
                     </div>
                     {catModels.map((m) => (

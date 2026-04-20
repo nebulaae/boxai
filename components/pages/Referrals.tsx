@@ -17,6 +17,7 @@ import {
 import { toast as refToast } from 'sonner';
 import { useState as useRefState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 const gr = {
   ultraThin:
@@ -59,6 +60,7 @@ const StatCard = ({
 export const Referrals = () => {
   const router = useRefRouter();
   const haptic = useRefHaptic();
+  const t = useTranslations('Referrals');
   const { user: tgUser } = useRefAuth();
   const { bot } = useRefBot();
   const { data: refData, isLoading } = useRefData();
@@ -78,7 +80,7 @@ export const Referrals = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
       haptic.success();
       setCopiedRef(true);
-      refToast.success('Ссылка скопирована');
+      refToast.success(t('linkCopied'));
       setTimeout(() => setCopiedRef(false), 2000);
     });
   };
@@ -118,11 +120,9 @@ export const Referrals = () => {
         </button>
         <div className="flex-1 min-w-0">
           <p className="text-[15px] font-semibold tracking-[-0.2px] text-white/85">
-            Рефералы
+            {t('title')}
           </p>
-          <span className="text-[11px] text-white/30">
-            Реферальная программа
-          </span>
+          <span className="text-[11px] text-white/30">{t('subtitle')}</span>
         </div>
       </header>
 
@@ -131,20 +131,20 @@ export const Referrals = () => {
         <div className="grid grid-cols-2 gap-3">
           <StatCard
             icon={<Users size={13} />}
-            label="Всего"
+            label={t('totalReferrals')}
             value={stats.total_referrals || 0}
             isLoading={isLoading}
           />
           <StatCard
             icon={<Gift size={13} />}
-            label="Уникальные"
+            label={t('unique')}
             value={stats.unique_referrals || 0}
             isLoading={isLoading}
           />
         </div>
         <StatCard
           icon={<Zap size={13} />}
-          label="Заработано токенов"
+          label={t('tokensEarned')}
           value={isLoading ? '' : `${totalTokens} ◈`}
           isLoading={isLoading}
         />
@@ -152,7 +152,7 @@ export const Referrals = () => {
         {referralLink && (
           <div>
             <p className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/35 mb-2.5 px-1">
-              Ваша ссылка
+              {t('yourLink')}
             </p>
             <div className={cn(gr.regular, 'rounded-[16px] p-4')}>
               <div className="flex items-center gap-2.5">
@@ -176,8 +176,7 @@ export const Referrals = () => {
                 </button>
               </div>
               <p className="text-[11px] text-white/30 mt-3 leading-relaxed">
-                Поделитесь ссылкой. Когда друзья присоединятся, вы оба получите
-                бонусы.
+                {t('shareDescription')}
               </p>
             </div>
           </div>
@@ -186,7 +185,7 @@ export const Referrals = () => {
         {levelStats && levelStats.length > 0 && (
           <div>
             <p className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/35 mb-2.5 px-1">
-              По уровням
+              {t('byLevels')}
             </p>
             <div className="flex flex-col gap-2">
               {levelStats.map((level: any, idx: number) => (
@@ -199,10 +198,10 @@ export const Referrals = () => {
                 >
                   <div>
                     <p className="text-[13px] font-semibold text-white/80">
-                      Уровень {level.level || idx + 1}
+                      {t('level', { n: level.level || idx + 1 })}
                     </p>
                     <p className="text-[11px] text-white/35 mt-0.5">
-                      {level.count || 0} рефералов
+                      {t('referralsCount', { count: level.count || 0 })}
                     </p>
                   </div>
                   <p className="text-[13px] font-semibold text-white/50">
@@ -217,7 +216,7 @@ export const Referrals = () => {
         {referrals && referrals.length > 0 && (
           <div>
             <p className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/35 mb-2.5 px-1">
-              Приглашённые ({referrals.length})
+              {t('invitedUsers', { count: referrals.length })}
             </p>
             <div className="flex flex-col gap-2">
               {referrals.map((ref: any, idx: number) => (
@@ -229,7 +228,7 @@ export const Referrals = () => {
                     <p className="text-[13px] font-semibold text-white/80 truncate">
                       {ref.first_name ||
                         ref.username ||
-                        `Пользователь #${ref.user_id || idx}`}
+                        t('user', { id: ref.user_id || idx })}
                     </p>
                     <span className="text-[11px] text-white/35 flex-shrink-0">
                       {ref.tokens_earned || 0} ◈
@@ -238,8 +237,8 @@ export const Referrals = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-white/30">
                       {ref.created_at
-                        ? new Date(ref.created_at).toLocaleDateString('ru-RU')
-                        : 'Недавно'}
+                        ? new Date(ref.created_at).toLocaleDateString()
+                        : t('recently')}
                     </span>
                     {ref.level && (
                       <span
@@ -249,7 +248,7 @@ export const Referrals = () => {
                           'text-white/40'
                         )}
                       >
-                        Ур. {ref.level}
+                        {t('level', { n: ref.level })}
                       </span>
                     )}
                   </div>
@@ -270,10 +269,10 @@ export const Referrals = () => {
               <Users size={20} className="text-white/25" />
             </div>
             <p className="text-[13px] text-white/40 max-w-56 leading-relaxed">
-              Нет приглашённых пользователей
+              {t('noReferrals')}
             </p>
             <p className="text-[12px] text-white/25 max-w-56">
-              Поделитесь ссылкой, чтобы начать зарабатывать
+              {t('noReferralsHint')}
             </p>
           </div>
         )}
@@ -287,3 +286,5 @@ export const Referrals = () => {
     </div>
   );
 };
+
+export default Referrals;

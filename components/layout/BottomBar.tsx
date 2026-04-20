@@ -6,18 +6,20 @@ import { usePathname } from 'next/navigation';
 import { Home, Brain, Sparkles, MessageCircle, UserRound } from 'lucide-react';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 const items = [
-  { id: 1, href: '/', label: 'Главная', icon: Home },
-  { id: 2, href: '/models', label: 'Модели', icon: Brain },
-  { id: 3, href: '/generate', label: 'Создать', icon: Sparkles },
-  { id: 4, href: '/chats', label: 'Чаты', icon: MessageCircle },
-  { id: 5, href: '/profile', label: 'Профиль', icon: UserRound },
+  { id: 1, href: '/', key: 'home', icon: Home },
+  { id: 2, href: '/models', key: 'models', icon: Brain },
+  { id: 3, href: '/generate', key: 'create', icon: Sparkles },
+  { id: 4, href: '/chats', key: 'chats', icon: MessageCircle },
+  { id: 5, href: '/profile', key: 'profile', icon: UserRound },
 ] as const;
 
 export const BottomBar = () => {
   const pathname = usePathname();
   const haptic = useHaptic();
+  const t = useTranslations('BottomBar');
   const [visible, setVisible] = useState(true);
 
   const isChat = /^\/chats\/.+/.test(pathname);
@@ -82,6 +84,7 @@ export const BottomBar = () => {
           const active = isActive(item.href);
           const isCreate = item.id === 3;
           const Icon = item.icon;
+          const label = t(item.key);
 
           return (
             <Link
@@ -113,7 +116,7 @@ export const BottomBar = () => {
                   active || isCreate ? 'text-white/80' : 'text-white/35'
                 )}
               >
-                {item.label}
+                {label}
               </span>
             </Link>
           );

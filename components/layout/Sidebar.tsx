@@ -17,19 +17,21 @@ import { Brain, Home, MessageCircle, Sparkle, UserRound } from 'lucide-react';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const items = [
-  { id: 1, href: '/', label: 'Главная', icon: Home },
-  { id: 2, href: '/models', label: 'Модели', icon: Brain },
-  { id: 3, href: '/generate', label: 'Создать', icon: Sparkle },
-  { id: 4, href: '/chats', label: 'Чаты', icon: MessageCircle },
-  { id: 5, href: '/profile', label: 'Профиль', icon: UserRound },
+  { id: 1, href: '/', key: 'home', icon: Home },
+  { id: 2, href: '/models', key: 'models', icon: Brain },
+  { id: 3, href: '/generate', key: 'create', icon: Sparkle },
+  { id: 4, href: '/chats', key: 'chats', icon: MessageCircle },
+  { id: 5, href: '/profile', key: 'profile', icon: UserRound },
 ] as const;
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const haptic = useHaptic();
+  const t = useTranslations('Sidebar');
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
@@ -65,12 +67,13 @@ export function AppSidebar() {
               {items.map((item) => {
                 const active = isActive(item.href);
                 const isCreate = item.id === 3;
+                const label = t(item.key);
                 return (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton
                       asChild
                       isActive={active}
-                      tooltip={item.label}
+                      tooltip={label}
                     >
                       <Link
                         href={item.href}
@@ -90,16 +93,13 @@ export function AppSidebar() {
                               )
                             : isCreate
                               ? cn(
-                                  'bg-[rgba(0,122,255,0.75)] backdrop-blur-xl',
-                                  'border border-[rgba(0,122,255,0.30)]',
-                                  'shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_4px_16px_rgba(0,122,255,0.32)]',
-                                  'text-white'
+                                  'bg-white/[.10] border border-white/[.16] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] text-white'
                                 )
                               : 'hover:bg-white/[.07]'
                         )}
                       >
                         <item.icon className="h-4 w-4" />
-                        <span>{item.label}</span>
+                        <span>{label}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
