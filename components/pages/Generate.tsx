@@ -192,7 +192,7 @@ export const Generate = () => {
         { type: uploaded.type, url: uploaded.url, file: files[0] },
       ]);
     } catch {
-      toast.error(t('errorFileUpload'));
+      toast.error(t('uploadError'));
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -200,7 +200,7 @@ export const Generate = () => {
   const handleGenerate = () => {
     if (!selected) return;
     if (!prompt.trim() && media.length === 0) {
-      toast.error(t('errorEmptyFields'));
+      toast.error(t('enterDescription'));
       return;
     }
     haptic.medium();
@@ -241,7 +241,7 @@ export const Generate = () => {
             toast.success(t('done'));
             router.push(`/chats/${dialogueId}`);
           } else {
-            toast.success(t('generationCompleted'));
+            toast.success(t('generationComplete'));
           }
         },
       }
@@ -259,7 +259,7 @@ export const Generate = () => {
     } else if (lastMessage.status === 'error') {
       haptic.error();
       setIsWaiting(false);
-      toast.error(t('errorPrefix') + (lastMessage.error || t('unknownError')));
+      toast.error(t('errorTitle') + ': ' + (lastMessage.error || t('unknownError')));
       setPendingId(null);
     }
   }, [lastMessage, isWaiting, pendingId, t, router]);
@@ -286,15 +286,15 @@ export const Generate = () => {
             {status === 'completed'
               ? t('done')
               : status === 'error'
-                ? t('errorLabel')
-                : t('generating')}
+                ? t('errorTitle')
+                : t('waitingTitle')}
           </p>
           <p className="text-[13px] text-white/40 max-w-[260px] leading-[1.5]">
             {status === 'completed'
-              ? t('redirecting')
+              ? t('doneSubtitle')
               : status === 'error'
                 ? lastMessage?.error || t('unknownError')
-                : t('generatingDescription')}
+                : t('waitingSubtitle')}
           </p>
         </div>
         <div className="flex gap-1.5">
@@ -384,7 +384,7 @@ export const Generate = () => {
             {/* Version selector */}
             {selected.versions && selected.versions.length > 1 && (
               <div>
-                <SectionLabel>{t('versionLabel')}</SectionLabel>
+                <SectionLabel>{t('version')}</SectionLabel>
                 <div className="flex flex-wrap gap-2">
                   {selected.versions.map((v) => (
                     <PillBtn
@@ -402,11 +402,11 @@ export const Generate = () => {
 
             {/* Prompt */}
             <div>
-              <SectionLabel>{t('descriptionLabel')}</SectionLabel>
+              <SectionLabel>{t('prompt')}</SectionLabel>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder={t('promptPlaceholder')}
+                placeholder={t('placeholder')}
                 rows={4}
                 className="w-full resize-none outline-none px-4 py-[14px] rounded-2xl
                   bg-white/[.04] border border-white/[.08]
@@ -421,7 +421,7 @@ export const Generate = () => {
             {/* Aspect ratio */}
             {aspectParam && (
               <div>
-                <SectionLabel>{t('aspectRatioLabel')}</SectionLabel>
+                <SectionLabel>{t('aspectRatio')}</SectionLabel>
                 <div className="flex flex-wrap gap-2">
                   {aspectParam.values?.map((val: string) => (
                     <PillBtn
@@ -454,7 +454,7 @@ export const Generate = () => {
                     className="flex items-center gap-2 text-[12px] text-white/35 bg-transparent border-none cursor-pointer py-1.5
                     hover:text-white/50 transition-colors"
                   >
-                    <Settings2 size={13} /> {t('extraParamsLabel')}
+                    <Settings2 size={13} /> {t('advancedParams')}
                     <ChevronDown
                       size={13}
                       className={cn(
@@ -521,7 +521,7 @@ export const Generate = () => {
             {canAttach && (
               <div>
                 <div className="flex items-center justify-between mb-2.5">
-                  <SectionLabel>{t('mediaLabel')}</SectionLabel>
+                  <SectionLabel>{t('media')}</SectionLabel>
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={upload.isPending}
@@ -533,7 +533,7 @@ export const Generate = () => {
                     ) : (
                       <ImagePlus size={12} />
                     )}{' '}
-                    {t('attachLabel')}
+                    {t('attach')}
                   </button>
                 </div>
                 <input
@@ -606,12 +606,12 @@ export const Generate = () => {
               {generate.isPending || upload.isPending ? (
                 <>
                   <Loader2 size={17} className="animate-spin" />
-                  {upload.isPending ? t('uploading') : t('generatingBtn')}
+                  {upload.isPending ? t('uploading') : t('generating')}
                 </>
               ) : (
                 <>
                   <Sparkles size={17} />
-                  {t('createBtn')}
+                  {t('generate')}
                 </>
               )}
             </button>
@@ -624,7 +624,7 @@ export const Generate = () => {
   /* ── Model picker ── */
   const catOrder = ['image', 'video', 'audio'] as const;
   const CAT_LABEL: Record<string, string> = {
-    image: t('catImages'),
+    image: t('catImage'),
     video: t('catVideo'),
     audio: t('catAudio'),
   };
@@ -642,10 +642,10 @@ export const Generate = () => {
       >
         <div className="max-w-[700px] mx-auto">
           <p className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
-            {t('pickerTitle')}
+            {t('title')}
           </p>
           <p className="text-[12px] text-white/35 mt-0.5 font-medium">
-            {t('pickerSubtitle')}
+            {t('subtitle')}
           </p>
         </div>
       </header>

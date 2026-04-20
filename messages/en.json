@@ -143,7 +143,9 @@
         "catImage": "Images",
         "catVideo": "Video",
         "catAudio": "Audio",
-        "uploadError": "File upload error"
+        "uploadError": "File upload error",
+        "versions": "{count} versions",
+        "generating": "Generating..."
     },
     "Profile": {
         "title": "Profile",

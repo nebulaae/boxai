@@ -300,8 +300,8 @@ export default function ChatPage() {
     if (modelName && activeVersion) return `${modelName} · ${activeVersion}`;
     if (modelName) return modelName;
     if (activeVersion) return activeVersion;
-    if (msgs.length > 0) return msgs[0].version || msgs[0].model || t('defaultTitle');
-    return t('defaultTitle');
+    if (msgs.length > 0) return msgs[0].version || msgs[0].model || t('dialogue');
+    return t('dialogue');
   })();
 
   const scrollToBottom = useCallback(() => {
@@ -340,12 +340,12 @@ export default function ChatPage() {
         (f) => f.type === fileType
       ).length;
       if (limit === 0) {
-        toast.error(t('errorModelNoMedia', { type: fileType }));
+        toast.error(t('modelNotAccept', { fileType }));
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
       if (currentCount >= limit) {
-        toast.error(t('errorMaxFiles', { limit, type: fileType }));
+        toast.error(t('maxFiles', { limit, fileType }));
         if (fileInputRef.current) fileInputRef.current.value = '';
         return;
       }
@@ -357,7 +357,7 @@ export default function ChatPage() {
         { url: res.url, type: res.type, file },
       ]);
     } catch {
-      toast.error(t('errorFileUpload'));
+      toast.error(t('uploadError'));
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -369,7 +369,7 @@ export default function ChatPage() {
     if (isHistoryLoading) return;
     if (isProcessing) {
       haptic.warning();
-      toast(t('waitProcessing'));
+      toast(t('waitGeneration'));
       return;
     }
     if (!text.trim() && uploadedFiles.length === 0) return;
@@ -380,7 +380,7 @@ export default function ChatPage() {
     });
     if (!techName) {
       haptic.error();
-      toast.error(t('errorModelUndefined'));
+      toast.error(t('modelNotFound'));
       return;
     }
     haptic.light();
@@ -389,7 +389,7 @@ export default function ChatPage() {
       format: 'url',
       input: f.url,
     }));
-    const safeText = text.trim() || 'Describe this content';
+    const safeText = text.trim() || t('describeImage');
     const inputs = convertMediaToInputs(safeText, oldFormatMedia);
     const sentText = text;
     setText('');
@@ -469,13 +469,13 @@ export default function ChatPage() {
             {chatTitle}
           </p>
           {isHistoryLoading && (
-            <span className="text-[11px] text-white/35">{t('loading')}...</span>
+            <span className="text-[11px] text-white/35">{t('loading')}</span>
           )}
           {!isHistoryLoading && isProcessing && (
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse" />
               <span className="text-[11px] text-amber-400/80 font-medium">
-                {t('generating')}…
+                {t('generating')}
               </span>
             </div>
           )}
@@ -507,14 +507,14 @@ export default function ChatPage() {
               </svg>
             </div>
             <p className="text-[14px] text-white/40 max-w-[200px] leading-relaxed">
-              {t('emptyChatSubtitle')}
+              {t('startDialogue')}
             </p>
 
             {/* Roles */}
             {showRoles && (
               <div className="w-full max-w-sm mt-1">
                 <p className="text-[10px] font-semibold tracking-[0.6px] uppercase text-white/30 mb-3">
-                  {t('selectAssistant')}
+                  {t('chooseAssistant')}
                 </p>
                 <div className="flex flex-col gap-1.5">
                   {roles!.slice(0, 5).map((role) => (
@@ -598,7 +598,7 @@ export default function ChatPage() {
                                 />
                               ) : (
                                 <div className="px-2.5 py-1.5 bg-white/10 rounded-lg text-xs text-white/70">
-                                  🎵 {t('audio')}
+                                  {t('audioLabel')}
                                 </div>
                               )}
                             </button>
@@ -630,7 +630,7 @@ export default function ChatPage() {
                         className="px-4 py-3 rounded-[18px_18px_18px_4px]
                         bg-red-500/10 border border-red-500/20 text-red-400/80 text-[14px]"
                       >
-                        {msg.error || t('errorGeneration')}
+                        {msg.error || t('error')}
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2">
@@ -834,7 +834,7 @@ export default function ChatPage() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('inputPlaceholder')}
+              placeholder={t('placeholder')}
               className="w-full box-border block resize-none py-[11px] px-4 rounded-2xl
                 bg-zinc-900/50 border border-white/[.08] outline-none
                 text-[15px] text-white/90 placeholder:text-white/20

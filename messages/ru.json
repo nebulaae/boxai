@@ -143,7 +143,9 @@
         "catImage": "Изображения",
         "catVideo": "Видео",
         "catAudio": "Аудио",
-        "uploadError": "Ошибка загрузки файла"
+        "uploadError": "Ошибка загрузки файла",
+        "versions": "{count} версии",
+        "generating": "Генерация..."
     },
     "Profile": {
         "title": "Профиль",
