@@ -92,9 +92,28 @@ function getDialogueModel(
     role?: string | null;
   }
 ): { model: string | null; version: string | null; roleId: number | null } {
-  if (!dialogueId) return { model: null, version: null, roleId: null };
+  if (!dialogueId) {
+    return { model: null, version: null, roleId: null };
+  }
+
+  // Для нового чата — только URL, никакого sessionStorage
+  if (dialogueId === 'new') {
+    if (urlParams?.model) {
+      const roleId = urlParams.role ? parseInt(urlParams.role) : null;
+      return {
+        model: urlParams.model,
+        version: urlParams.version ?? null,
+        roleId: isNaN(roleId as number) ? null : roleId,
+      };
+    }
+    return { model: null, version: null, roleId: null };
+  }
+
+  // Для существующего чата — история → sessionStorage
   let fromHistory = messages.find((m) => m.model);
-  if (!fromHistory && messages.length > 0) fromHistory = messages[0];
+  if (!fromHistory && messages.length > 0) {
+    fromHistory = messages[0];
+  }
   if (fromHistory && (fromHistory.model || fromHistory.version)) {
     const model = fromHistory.model || fromHistory.version || '';
     const version = fromHistory.version || '';
@@ -102,21 +121,16 @@ function getDialogueModel(
     writeStoredModel(dialogueId, model, version, roleId);
     return { model: model || null, version: version || null, roleId };
   }
+
   const cached = readStoredModel(dialogueId);
-  if (cached)
+  if (cached) {
     return {
       model: cached.model,
       version: cached.version,
       roleId: cached.role_id,
     };
-  if (dialogueId === 'new' && urlParams?.model) {
-    const roleId = urlParams.role ? parseInt(urlParams.role) : null;
-    return {
-      model: urlParams.model,
-      version: urlParams.version ?? null,
-      roleId: isNaN(roleId as number) ? null : roleId,
-    };
   }
+
   return { model: null, version: null, roleId: null };
 }
 
@@ -257,27 +271,13 @@ export default function ChatPage() {
     urlRole ? parseInt(urlRole) : null
   );
 
-  // Если это новый чат и модель пришла из URL — сразу кешируем
   useEffect(() => {
-    // Инициализируем selectedRoleId из URL при монтировании
     if (urlRole) {
       const parsed = parseInt(urlRole);
       if (!isNaN(parsed)) setSelectedRoleId(parsed);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => {
-    // При смене модели через URL — сбрасываем кеш sessionStorage
-    if (!dialogueId || !urlModel) return;
-    writeStoredModel(
-      dialogueId,
-      urlModel,
-      urlVersion || '',
-      urlRole ? (isNaN(parseInt(urlRole)) ? null : parseInt(urlRole)) : null
-    );
-  }, [dialogueId, urlModel, urlVersion, urlRole]);
-
-  // ✅ Теперь безопасно делать ранний return
   if (!dialogueId) return null;
 
   const { data: messages = [], isLoading: isHistoryLoading } = useChatHistory(
