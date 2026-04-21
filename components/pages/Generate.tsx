@@ -22,7 +22,8 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { getParamLabel, getParamValueLabel } from '@/lib/paramHelpers';
 
 function useGenerationStatus(dialogueId: string | null, enabled: boolean) {
   return useQuery({
@@ -160,6 +161,7 @@ const ModelRow = ({ m, onClick }: { m: any; onClick: () => void }) => {
 export const Generate = () => {
   const t = useTranslations('Generate');
   const router = useRouter();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const modelParam = searchParams.get('model');
   const haptic = useHaptic();
@@ -504,7 +506,7 @@ export const Generate = () => {
                         .map((p: any) => (
                           <div key={p.name}>
                             <label className="block text-[11px] text-white/35 mb-1.5">
-                              {paramLabel(p.name, t)}
+                              {getParamLabel(p.name, locale)}
                             </label>
                             {p.type === 'select' && p.values ? (
                               <div className="flex flex-wrap gap-1.5">
@@ -521,7 +523,7 @@ export const Generate = () => {
                                       }))
                                     }
                                   >
-                                    {paramValueLabel(p.name, val, t)}
+                                    {getParamValueLabel(p.name, val, locale)}
                                   </PillBtn>
                                 ))}
                               </div>
