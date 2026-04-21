@@ -250,14 +250,35 @@ export default function ChatPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!dialogueId) return null;
-
   const urlModel = searchParams.get('model');
   const urlVersion = searchParams.get('version');
   const urlRole = searchParams.get('role');
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(
     urlRole ? parseInt(urlRole) : null
   );
+
+  // Если это новый чат и модель пришла из URL — сразу кешируем
+  useEffect(() => {
+    // Инициализируем selectedRoleId из URL при монтировании
+    if (urlRole) {
+      const parsed = parseInt(urlRole);
+      if (!isNaN(parsed)) setSelectedRoleId(parsed);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // При смене модели через URL — сбрасываем кеш sessionStorage
+    if (!dialogueId || !urlModel) return;
+    writeStoredModel(
+      dialogueId,
+      urlModel,
+      urlVersion || '',
+      urlRole ? (isNaN(parseInt(urlRole)) ? null : parseInt(urlRole)) : null
+    );
+  }, [dialogueId, urlModel, urlVersion, urlRole]);
+
+  // ✅ Теперь безопасно делать ранний return
+  if (!dialogueId) return null;
 
   const { data: messages = [], isLoading: isHistoryLoading } = useChatHistory(
     dialogueId === 'new' ? null : dialogueId
@@ -278,11 +299,6 @@ export default function ChatPage() {
     role: urlRole,
   });
 
-  useEffect(() => {
-    if (dialogueId === 'new' && urlModel)
-      writeStoredModel(dialogueId, urlModel, urlVersion || '', selectedRoleId);
-  }, [dialogueId, urlModel, urlVersion, selectedRoleId]);
-
   const isProcessing = msgs.some(
     (m) => m.status === 'processing' || m.status === 'pending'
   );
@@ -300,7 +316,14 @@ export default function ChatPage() {
     if (modelName && activeVersion) return `${modelName} · ${activeVersion}`;
     if (modelName) return modelName;
     if (activeVersion) return activeVersion;
-    if (msgs.length > 0) return msgs[0].version || msgs[0].model || t('dialogue');
+    // ← Фикс: если модель ещё не загрузилась из allModels,
+    //   но есть urlModel — показываем его, а не устаревший кеш
+    if (urlModel) {
+      const ver = urlVersion || activeVersion;
+      return ver ? `${urlModel} · ${ver}` : urlModel;
+    }
+    if (msgs.length > 0)
+      return msgs[0].version || msgs[0].model || t('dialogue');
     return t('dialogue');
   })();
 

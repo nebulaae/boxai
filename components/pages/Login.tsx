@@ -278,8 +278,7 @@ export const Login = () => {
       }
     } catch (e: any) {
       haptic.error();
-      if (e?.response?.status === 409)
-        toast.error(t('errorEmailExists'));
+      if (e?.response?.status === 409) toast.error(t('errorEmailExists'));
       else
         toast.error(
           e?.response?.data?.error || e?.message || t('errorRegister')

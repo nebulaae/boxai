@@ -78,22 +78,20 @@ export const Profile = () => {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
 
-  const STATUS: Record<
-    string,
-    { icon: string; color: string; label: string }
-  > = {
-    completed: {
-      icon: '✓',
-      color: '#6ee7b7',
-      label: t('statusCompleted'),
-    },
-    error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
-    processing: {
-      icon: '⏳',
-      color: '#fde68a',
-      label: t('statusProcessing'),
-    },
-  };
+  const STATUS: Record<string, { icon: string; color: string; label: string }> =
+    {
+      completed: {
+        icon: '✓',
+        color: '#6ee7b7',
+        label: t('statusCompleted'),
+      },
+      error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
+      processing: {
+        icon: '⏳',
+        color: '#fde68a',
+        label: t('statusProcessing'),
+      },
+    };
 
   const tokens = userData?.user?.tokens ?? 0;
   const isPremium = userData?.user?.premium ?? false;
@@ -224,8 +222,7 @@ export const Profile = () => {
               )}
               {isPremium && premiumEnd && (
                 <p className="text-[11px] text-amber-400/60 mt-0.5">
-                  Premium до{' '}
-                  {new Date(premiumEnd * 1000).toLocaleDateString()}
+                  Premium до {new Date(premiumEnd * 1000).toLocaleDateString()}
                 </p>
               )}
             </div>
