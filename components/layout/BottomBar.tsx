@@ -61,6 +61,10 @@ export const BottomBar = () => {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
+  const homeItem = items[0];
+  const midItems = items.slice(1, 4);
+  const profileItem = items[4];
+
   return (
     <nav
       aria-label="Нижняя навигация"
@@ -71,56 +75,120 @@ export const BottomBar = () => {
         !visible && 'translate-y-[120%]'
       )}
     >
-      {/* Glass pill */}
-      <div
-        className="flex items-stretch w-full max-w-sm
-        rounded-[22px] overflow-hidden
+      <div className="flex items-center gap-2 px-2.5 py-2
+        rounded-[28px]
         bg-zinc-950/85 backdrop-blur-3xl backdrop-saturate-200
         border border-white/[.13]
-        shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_16px_48px_rgba(0,0,0,0.55),0_4px_12px_rgba(0,0,0,0.3)]
-        p-1 gap-0.5"
+        shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_20px_60px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.4)]"
       >
-        {items.map((item) => {
-          const active = isActive(item.href);
-          const isCreate = item.id === 3;
-          const Icon = item.icon;
-          const label = t(item.key);
+        {/* Home bubble */}
+        <Link
+          href={homeItem.href}
+          onClick={() => haptic.selection()}
+          className={cn(
+            'w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5',
+            'select-none no-underline transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+            'active:scale-90',
+            'border',
+            isActive(homeItem.href)
+              ? 'bg-white/[.12] border-white/[.20] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_0_20px_rgba(255,255,255,0.08)]'
+              : 'bg-white/[.05] border-white/[.08] hover:bg-white/[.08]'
+          )}
+        >
+          <Home
+            size={20}
+            strokeWidth={isActive(homeItem.href) ? 2.2 : 1.6}
+            className={cn(
+              'transition-all duration-250',
+              isActive(homeItem.href) ? 'text-white' : 'text-white/45'
+            )}
+          />
+          <span className={cn(
+            'text-[9px] font-medium leading-none transition-all duration-250',
+            isActive(homeItem.href) ? 'text-white/85' : 'text-white/35'
+          )}>
+            {t(homeItem.key)}
+          </span>
+        </Link>
 
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              onClick={() => {
-                if (isCreate) haptic.medium();
-                else haptic.selection();
-              }}
-              className={cn(
-                'flex-1 flex flex-col items-center justify-center gap-[3px] py-2.5 rounded-[16px]',
-                'select-none no-underline transition-all duration-200',
-                'active:scale-[0.88]',
-                isCreate
-                  ? 'bg-white/[.10] border border-white/[.16] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] text-white'
-                  : active
-                    ? 'bg-white/[.08] text-white'
-                    : 'text-white/40 hover:text-white/60 hover:bg-white/[.04]'
-              )}
-            >
-              <Icon
-                size={18}
-                strokeWidth={active || isCreate ? 2.2 : 1.6}
-                className="transition-all duration-200"
-              />
-              <span
+        {/* Divider */}
+        <div className="w-px h-7 bg-white/[.10] rounded-full flex-shrink-0" />
+
+        {/* Mid items */}
+        <div className="flex items-center">
+          {midItems.map((item) => {
+            const active = isActive(item.href);
+            const isCreate = item.id === 3;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={() => {
+                  if (isCreate) haptic.medium();
+                  else haptic.selection();
+                }}
                 className={cn(
-                  'text-[9.5px] font-medium leading-none whitespace-nowrap transition-all duration-200',
-                  active || isCreate ? 'text-white/80' : 'text-white/35'
+                  'flex flex-col items-center gap-1 px-3 py-2.5 rounded-2xl',
+                  'select-none no-underline transition-all duration-250 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                  'active:scale-[0.88]',
                 )}
+                style={active || isCreate ? {
+                  background: 'rgba(255,255,255,0.09)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
+                } : {}}
               >
-                {label}
-              </span>
-            </Link>
-          );
-        })}
+                <Icon
+                  size={18}
+                  strokeWidth={active || isCreate ? 2.2 : 1.5}
+                  className={cn(
+                    'transition-all duration-250',
+                    active || isCreate ? 'text-white' : 'text-white/40'
+                  )}
+                />
+                <span className={cn(
+                  'text-[9.5px] font-medium leading-none whitespace-nowrap transition-all duration-250',
+                  active || isCreate ? 'text-white/85' : 'text-white/30'
+                )}>
+                  {t(item.key)}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-7 bg-white/[.10] rounded-full flex-shrink-0" />
+
+        {/* Profile bubble */}
+        <Link
+          href={profileItem.href}
+          onClick={() => haptic.selection()}
+          className={cn(
+            'w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5',
+            'select-none no-underline transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+            'active:scale-90',
+            'border',
+            isActive(profileItem.href)
+              ? 'bg-white/[.12] border-white/[.20] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_0_20px_rgba(255,255,255,0.08)]'
+              : 'bg-white/[.05] border-white/[.08] hover:bg-white/[.08]'
+          )}
+        >
+          <UserRound
+            size={20}
+            strokeWidth={isActive(profileItem.href) ? 2.2 : 1.6}
+            className={cn(
+              'transition-all duration-250',
+              isActive(profileItem.href) ? 'text-white' : 'text-white/45'
+            )}
+          />
+          <span className={cn(
+            'text-[9px] font-medium leading-none transition-all duration-250',
+            isActive(profileItem.href) ? 'text-white/85' : 'text-white/35'
+          )}>
+            {t(profileItem.key)}
+          </span>
+        </Link>
       </div>
     </nav>
   );
