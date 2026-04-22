@@ -1,5 +1,5 @@
+// boxai bottombar
 'use client';
-
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
@@ -27,6 +27,7 @@ export const BottomBar = () => {
   const handleScroll = useCallback(() => {
     let lastY = 0;
     let timer: ReturnType<typeof setTimeout>;
+
     const onScroll = () => {
       const curr = window.scrollY;
       setVisible(curr <= lastY || curr < 80);
@@ -34,6 +35,7 @@ export const BottomBar = () => {
       clearTimeout(timer);
       timer = setTimeout(() => setVisible(true), 1500);
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
@@ -44,10 +46,12 @@ export const BottomBar = () => {
   useEffect(() => {
     if (isChat) return;
     const cleanup = handleScroll();
+
     const onActivity = () => setVisible(true);
     ['touchstart', 'mousedown'].forEach((e) =>
       window.addEventListener(e, onActivity, { passive: true })
     );
+
     return () => {
       cleanup();
       ['touchstart', 'mousedown'].forEach((e) =>
@@ -70,17 +74,12 @@ export const BottomBar = () => {
       aria-label="Нижняя навигация"
       className={cn(
         'flex sm:hidden fixed bottom-0 left-0 right-0 z-50 justify-center px-4',
-        'pb-[max(10px,env(safe-area-inset-bottom))]',
-        'transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+        'pb-[max(12px,env(safe-area-inset-bottom))]',
+        'transition-transform duration-380 ease-[cubic-bezier(0.32,0.72,0,1)]',
         !visible && 'translate-y-[120%]'
       )}
     >
-      <div className="flex items-center gap-2 px-2.5 py-2
-        rounded-[28px]
-        bg-zinc-950/85 backdrop-blur-3xl backdrop-saturate-200
-        border border-white/[.13]
-        shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_20px_60px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.4)]"
-      >
+      <div className="flex items-center gap-2 px-2.5 py-2">
         {/* Home bubble */}
         <Link
           href={homeItem.href}
@@ -89,37 +88,35 @@ export const BottomBar = () => {
             'w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5',
             'select-none no-underline transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
             'active:scale-90',
-            'border',
-            isActive(homeItem.href)
-              ? 'bg-white/[.12] border-white/[.20] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_0_20px_rgba(255,255,255,0.08)]'
-              : 'bg-white/[.05] border-white/[.08] hover:bg-white/[.08]'
+            "bg-black/20 backdrop-blur-3xl backdrop-saturate-200",
+            "border border-white/[.14]",
+            "shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_20px_60px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.4)]"
           )}
         >
           <Home
             size={20}
             strokeWidth={isActive(homeItem.href) ? 2.2 : 1.6}
-            className={cn(
-              'transition-all duration-250',
-              isActive(homeItem.href) ? 'text-white' : 'text-white/45'
-            )}
+            style={{ color: isActive(homeItem.href) ? '#ffffff' : 'rgba(255,255,255,0.45)' }}
+            className="transition-all duration-250"
           />
-          <span className={cn(
-            'text-[9px] font-medium leading-none transition-all duration-250',
-            isActive(homeItem.href) ? 'text-white/85' : 'text-white/35'
-          )}>
+          <span
+            className="text-[9px] font-medium leading-none transition-all duration-250"
+            style={{ color: isActive(homeItem.href) ? '#ffffff' : 'rgba(255,255,255,0.35)' }}
+          >
             {t(homeItem.key)}
           </span>
         </Link>
 
-        {/* Divider */}
-        <div className="w-px h-7 bg-white/[.10] rounded-full flex-shrink-0" />
-
         {/* Mid items */}
-        <div className="flex items-center">
+        <div className={cn("flex items-center justify-center gap-1 px-1 py-1 rounded-3xl",
+          "bg-black/20 backdrop-blur-3xl backdrop-saturate-200",
+          "border border-white/[.14]",
+          "shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_20px_60px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.4)]")}>
           {midItems.map((item) => {
             const active = isActive(item.href);
             const isCreate = item.id === 3;
             const Icon = item.icon;
+
             return (
               <Link
                 key={item.id}
@@ -129,36 +126,31 @@ export const BottomBar = () => {
                   else haptic.selection();
                 }}
                 className={cn(
-                  'flex flex-col items-center gap-1 px-3 py-2.5 rounded-2xl',
-                  'select-none no-underline transition-all duration-250 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                  'flex flex-col items-center gap-1 px-3 py-2 rounded-2xl',
+                  'select-none no-underline transition-all duration-280 ease-[cubic-bezier(0.32,0.72,0,1)]',
                   'active:scale-[0.88]',
                 )}
-                style={active || isCreate ? {
-                  background: 'rgba(255,255,255,0.09)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
+                style={active ? {
+                  background: 'rgba(255,255,255,0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10)',
                 } : {}}
               >
                 <Icon
                   size={18}
-                  strokeWidth={active || isCreate ? 2.2 : 1.5}
-                  className={cn(
-                    'transition-all duration-250',
-                    active || isCreate ? 'text-white' : 'text-white/40'
-                  )}
+                  strokeWidth={active ? 2.2 : 1.5}
+                  style={{ color: active ? '#ffffff' : 'rgba(255,255,255,0.40)' }}
+                  className="transition-all duration-250"
                 />
-                <span className={cn(
-                  'text-[9.5px] font-medium leading-none whitespace-nowrap transition-all duration-250',
-                  active || isCreate ? 'text-white/85' : 'text-white/30'
-                )}>
+                <span
+                  className="text-[9.5px] font-medium leading-none whitespace-nowrap transition-all duration-250"
+                  style={{ color: active ? '#ffffff' : 'rgba(255,255,255,0.30)' }}
+                >
                   {t(item.key)}
                 </span>
               </Link>
             );
           })}
         </div>
-
-        {/* Divider */}
-        <div className="w-px h-7 bg-white/[.10] rounded-full flex-shrink-0" />
 
         {/* Profile bubble */}
         <Link
@@ -168,24 +160,21 @@ export const BottomBar = () => {
             'w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5',
             'select-none no-underline transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
             'active:scale-90',
-            'border',
-            isActive(profileItem.href)
-              ? 'bg-white/[.12] border-white/[.20] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_0_20px_rgba(255,255,255,0.08)]'
-              : 'bg-white/[.05] border-white/[.08] hover:bg-white/[.08]'
+            "bg-black/20 backdrop-blur-3xl backdrop-saturate-200",
+            "border border-white/[.14]",
+            "shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_20px_60px_rgba(0,0,0,0.65),0_4px_16px_rgba(0,0,0,0.4)]"
           )}
         >
           <UserRound
             size={20}
             strokeWidth={isActive(profileItem.href) ? 2.2 : 1.6}
-            className={cn(
-              'transition-all duration-250',
-              isActive(profileItem.href) ? 'text-white' : 'text-white/45'
-            )}
+            style={{ color: isActive(profileItem.href) ? '#ffffff' : 'rgba(255,255,255,0.45)' }}
+            className="transition-all duration-250"
           />
-          <span className={cn(
-            'text-[9px] font-medium leading-none transition-all duration-250',
-            isActive(profileItem.href) ? 'text-white/85' : 'text-white/35'
-          )}>
+          <span
+            className="text-[9px] font-medium leading-none transition-all duration-250"
+            style={{ color: isActive(profileItem.href) ? '#ffffff' : 'rgba(255,255,255,0.35)' }}
+          >
             {t(profileItem.key)}
           </span>
         </Link>
