@@ -126,7 +126,7 @@ export const Chats = () => {
             <Loader2 className="size-5 animate-spin text-white/40" />
           </div>
         </div>
-        <p className="text-[13px] text-white/35 tracking-wide">
+        <p className="text-[14px] text-white/35 tracking-wide">
           {t('openingChat')}
         </p>
       </div>
@@ -141,11 +141,11 @@ export const Chats = () => {
         backdrop-blur-2xl border-b border-white/[.05]"
       >
         <div className="flex flex-col gap-0.5">
-          <span className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
+          <span className="text-[24px] font-bold tracking-[-0.5px] text-white/90">
             {t('title')}
           </span>
           {!isLoading && chats.length > 0 && (
-            <span className="text-[11px] text-white/30 font-medium">
+            <span className="text-[13px] text-white/30 font-medium">
               {chats.length} {t('dialogue')}
             </span>
           )}
@@ -211,11 +211,11 @@ export const Chats = () => {
                   </ChatsAvatar>
 
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-semibold text-white/85 truncate tracking-[-0.2px]">
-                      {displayName}
+                    <div className="text-[16px] font-semibold text-white/85 truncate tracking-[-0.2px]">
+                      {chat.title || displayName}
                     </div>
-                    <div className="text-[11px] text-white/30 mt-0.5">
-                      {timeAgo(chat.last_activity || chat.started_at)}
+                    <div className="text-[12px] text-white/30 mt-0.5">
+                      {chat.title === null ? null :displayName}
                     </div>
                   </div>
 

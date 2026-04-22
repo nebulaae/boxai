@@ -91,7 +91,7 @@ export const Models = () => {
         backdrop-blur-2xl border-b border-white/[.05]"
       >
         <div className="max-w-2xl mx-auto">
-          <span className="text-[22px] font-bold tracking-[-0.5px] text-white/90">
+          <span className="text-[24px] font-bold tracking-[-0.5px] text-white/90">
             {t('title')}
           </span>
         </div>
@@ -113,7 +113,7 @@ export const Models = () => {
                   setTab(t_tab.key);
                 }}
                 className={cn(
-                  'shrink-0 px-4 py-1.5 rounded-full text-[12px] font-semibold cursor-pointer whitespace-nowrap',
+                  'shrink-0 px-4 py-1.5 rounded-full text-[14px] font-semibold cursor-pointer whitespace-nowrap',
                   'transition-all duration-200 active:scale-[0.93]',
                   active
                     ? 'bg-white/[.12] border border-white/[.18] text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]'
@@ -170,11 +170,11 @@ export const Models = () => {
                     </Avatar>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-white/85 truncate tracking-[-0.2px]">
+                    <p className="text-[16px] font-semibold text-white/85 truncate tracking-[-0.2px]">
                       {m.model_name}
                     </p>
-                    <p className="text-[11px] text-white/35 mt-0.5 flex items-center gap-1.5">
-                      <span className={cn('text-[10px]', catColor)}>
+                    <p className="text-[14px] text-white/35 mt-0.5 flex items-center gap-1.5">
+                      <span className={cn('text-[14px]', catColor)}>
                         {catIcon}
                       </span>
                       <span>{catLabel}</span>
@@ -190,7 +190,7 @@ export const Models = () => {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <div
-                      className="px-2.5 py-[3px] rounded-full text-[11px] font-medium text-white/30
+                      className="px-2.5 py-[3px] rounded-full text-[13px] font-medium text-white/30
                       bg-white/[.04] border border-white/[.07]"
                     >
                       ◈ {cost}

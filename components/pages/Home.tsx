@@ -59,7 +59,7 @@ const SectionTitle = ({
     {action && (
       <button
         onClick={onAction}
-        className="text-[12px] text-white/30 hover:text-white/50 transition-colors font-medium px-2.5 py-1 rounded-lg
+        className="text-[14px] text-white/30 hover:text-white/50 transition-colors font-medium px-2.5 py-1 rounded-lg
           bg-white/[.04] border border-white/[.07] active:scale-95 transition-all duration-150"
       >
         {action}
@@ -145,12 +145,12 @@ export const Home = () => {
       >
         <div className="flex items-center gap-3">
           <div
-            className="w-8 h-8 rounded-[10px] bg-white/[.06] border border-white/[.10]
+            className="w-10 h-10 rounded-[10px] bg-white/[.06] border border-white/[.10]
             flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
           >
-            <Sparkles size={14} className="text-white/60" />
+            <Sparkles size={16} className="text-white/60" />
           </div>
-          <span className="text-[18px] font-bold tracking-[-0.4px] text-white/90">
+          <span className="text-[24px] font-bold tracking-[-0.4px] text-white/90">
             BoxAI
           </span>
         </div>
@@ -162,8 +162,8 @@ export const Home = () => {
             hover:bg-white/[.08] active:scale-[0.94]
             transition-all duration-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
         >
-          <Zap size={12} className="text-amber-400/70" />
-          <span className="text-[13px] font-semibold text-white/70">
+          <Zap size={14} className="text-amber-400/70" />
+          <span className="text-[14px] font-semibold text-white/70">
             {tokens}
           </span>
         </button>
@@ -207,12 +207,12 @@ export const Home = () => {
                             `https://ui-avatars.com/api/?name=${encodeURIComponent(m.model_name)}&background=18181b&color=fff`
                           }
                         />
-                        <AvatarFallback className="text-[12px] font-semibold bg-transparent text-white/50">
+                        <AvatarFallback className="text-[14px] font-semibold bg-transparent text-white/50">
                           {m.model_name.slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                     </div>
-                    <span className="text-[10px] font-medium text-white/45 max-w-[60px] text-center truncate leading-tight">
+                    <span className="text-[12px] font-medium text-white/45 max-w-[60px] text-center truncate leading-tight">
                       {m.model_name}
                     </span>
                   </button>
@@ -264,7 +264,7 @@ export const Home = () => {
                         </AvatarFallback>
                       </Avatar>
                     </div>
-                    <span className="text-[10px] font-medium text-white/45 w-[60px] text-center truncate">
+                    <span className="text-[12px] font-medium text-white/45 w-[60px] text-center truncate">
                       {localize(role.label)}
                     </span>
                   </button>

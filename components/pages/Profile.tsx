@@ -165,7 +165,7 @@ export const Profile = () => {
         className="sticky top-0 z-40 flex items-center justify-between px-5 pt-5 pb-4
         bg-gradient-to-b from-zinc-950/95 to-zinc-950/0 backdrop-blur-2xl border-b border-white/[.05]"
       >
-        <span className="text-base font-bold tracking-[-0.5px] text-white/90">
+        <span className="text-[24px] font-bold tracking-[-0.5px] text-white/90">
           {t('title')}
         </span>
         <div className="flex items-center gap-3">
@@ -214,14 +214,14 @@ export const Profile = () => {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[17px] font-bold tracking-[-0.3px] truncate text-white/90">
+              <p className="text-[20px] font-bold tracking-[-0.3px] truncate text-white/90">
                 {name}
               </p>
               {username && (
-                <p className="text-[13px] text-white/35 mt-0.5">@{username}</p>
+                <p className="text-[14px] text-white/35 mt-0.5">@{username}</p>
               )}
               {isPremium && premiumEnd && (
-                <p className="text-[11px] text-amber-400/60 mt-0.5">
+                <p className="text-[12px] text-amber-400/60 mt-0.5">
                   Premium до {new Date(premiumEnd * 1000).toLocaleDateString()}
                 </p>
               )}
@@ -233,7 +233,7 @@ export const Profile = () => {
         <div className="grid grid-cols-2 gap-3">
           <Card onClick={handleTopUp} className="p-4 w-full text-left">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-[10px] font-semibold tracking-[0.5px] uppercase text-white/30">
+              <span className="text-[12px] font-semibold tracking-[0.5px] uppercase text-white/30">
                 {t('tokens')}
               </span>
               <Zap size={12} className="text-amber-400/50" />
@@ -248,7 +248,7 @@ export const Profile = () => {
                 <span className="text-[12px] mb-0.5 text-white/40">◈</span>
               </div>
             )}
-            <span className="text-[11px] font-medium text-white/35 flex items-center gap-1">
+            <span className="text-[12px] font-medium text-white/35 flex items-center gap-1">
               {t('topUp')} <ExternalLink size={9} />
             </span>
           </Card>
@@ -261,7 +261,7 @@ export const Profile = () => {
             className="p-4 w-full text-left"
           >
             <div className="flex justify-between items-center mb-3">
-              <span className="text-[10px] font-semibold tracking-[0.5px] uppercase text-white/30">
+              <span className="text-[12px] font-semibold tracking-[0.5px] uppercase text-white/30">
                 {t('referrals')}
               </span>
               <Users size={12} className="text-white/25" />
@@ -273,7 +273,7 @@ export const Profile = () => {
                 {refStats?.total ?? refStats?.total_referrals ?? 0}
               </span>
             )}
-            <span className="text-[11px] text-white/30 flex items-center gap-1">
+            <span className="text-[12px] text-white/30 flex items-center gap-1">
               {t('earned', {
                 amount: refStats?.earned ?? refStats?.total_tokens ?? 0,
               })}{' '}
@@ -287,13 +287,13 @@ export const Profile = () => {
         {referralLink && (
           <Card className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-semibold tracking-[0.5px] uppercase text-white/30">
+              <span className="text-[12px] font-semibold tracking-[0.5px] uppercase text-white/30">
                 {t('referralLink')}
               </span>
-              <LinkIcon size={11} className="text-white/25" />
+              <LinkIcon size={12} className="text-white/25" />
             </div>
             <div className="flex items-center gap-2.5 bg-white/[.03] rounded-xl px-3 py-2.5 border border-white/[.05]">
-              <span className="flex-1 text-[11px] text-white/45 overflow-hidden text-ellipsis whitespace-nowrap font-mono">
+              <span className="flex-1 text-[12px] text-white/45 overflow-hidden text-ellipsis whitespace-nowrap font-mono">
                 {referralLink}
               </span>
               <button
@@ -301,13 +301,13 @@ export const Profile = () => {
                 className="flex-shrink-0 p-1.5 rounded-lg hover:bg-white/[.06] active:scale-[0.88] transition-all duration-150"
               >
                 {copiedRef ? (
-                  <Check size={13} className="text-emerald-400/80" />
+                  <Check size={12} className="text-emerald-400/80" />
                 ) : (
-                  <Copy size={13} className="text-white/35" />
+                  <Copy size={12} className="text-white/35" />
                 )}
               </button>
             </div>
-            <p className="text-[10px] text-white/25 mt-2.5">{t('shareLink')}</p>
+            <p className="text-[12px] text-white/25 mt-2.5">{t('shareLink')}</p>
           </Card>
         )}
 
@@ -345,10 +345,10 @@ export const Profile = () => {
                   key={t_token.id}
                   className="flex items-center gap-2.5 px-4 py-3"
                 >
-                  <code className="flex-1 text-[11px] text-white/40 overflow-hidden text-ellipsis whitespace-nowrap font-mono">
+                  <code className="flex-1 text-[12px] text-white/40 overflow-hidden text-ellipsis whitespace-nowrap font-mono">
                     {t_token.token}
                   </code>
-                  <span className="text-[10px] text-white/25 flex-shrink-0">
+                  <span className="text-[12px] text-white/25 flex-shrink-0">
                     {t_token.generations} req
                   </span>
                   <button
@@ -372,7 +372,7 @@ export const Profile = () => {
 
         {/* ── History ── */}
         <div className="pb-2">
-          <span className="block text-[10px] font-semibold tracking-[0.6px] uppercase text-white/30 mb-3">
+          <span className="block text-[12px] font-semibold tracking-[0.6px] uppercase text-white/30 mb-3">
             {t('generationHistory')}
           </span>
           {reqLoading ? (
@@ -388,7 +388,7 @@ export const Profile = () => {
               ))}
             </div>
           ) : requests.length === 0 ? (
-            <p className="text-[13px] text-white/30 py-4">
+            <p className="text-[14px] text-white/30 py-4">
               {t('noGenerations')}
             </p>
           ) : (
@@ -412,21 +412,21 @@ export const Profile = () => {
                       {st.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-white/75 truncate">
+                      <p className="text-[14px] font-semibold text-white/75 truncate">
                         {req.version}
                       </p>
-                      <p className="text-[11px] text-white/35 mt-0.5">
+                      <p className="text-[12px] text-white/35 mt-0.5">
                         {req.id} · {timeAgo(req.created_at)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-[3px] flex-shrink-0">
                       <span
-                        className="text-[11px] font-semibold"
+                        className="text-[12px] font-semibold"
                         style={{ color: st.color }}
                       >
                         {st.label}
                       </span>
-                      <span className="text-[10px] text-white/25">
+                      <span className="text-[13px] text-white/25">
                         {req.cost} ◈
                       </span>
                     </div>
