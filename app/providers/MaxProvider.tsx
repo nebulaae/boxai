@@ -6,6 +6,8 @@ import api from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useBot } from '@/app/providers/BotProvider';
 
+import { getAppSource } from '@/lib/source';
+
 export const MaxProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, login } = useAuth();
   const { bot } = useBot(); // 👈
@@ -13,6 +15,9 @@ export const MaxProvider = ({ children }: { children: React.ReactNode }) => {
   const expanded = useRef(false);
 
   useEffect(() => {
+    const source = getAppSource();
+    if (source !== 'max') return;
+
     const maxWA = (window as any)?.WebApp;
     if (!maxWA?.initData) return;
 

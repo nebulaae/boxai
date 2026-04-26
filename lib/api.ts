@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAppSource } from '@/lib/source';
 
 const AUTH_FREE_PATHS = [
   '/api/auth/create/email',
@@ -65,16 +66,23 @@ api.interceptors.request.use((config) => {
     if (!isFree) {
       const token = localStorage.getItem('auth_token');
       if (token) config.headers.Authorization = `Bearer ${token}`;
-      const tg = (window as any)?.Telegram?.WebApp;
-      if (!token && tg?.initData) config.headers['X-Init-Data'] = tg.initData;
+      
+      if (!token) {
+        const tg = (window as any)?.Telegram?.WebApp;
+        const maxWA = (window as any)?.WebApp;
+        const initData = tg?.initData || maxWA?.initData;
+        if (initData) config.headers['X-Init-Data'] = initData;
+      }
     }
 
     const botId = getBotId();
     const userId = getUserId();
+    const source = getAppSource();
 
     config.params = config.params || {};
     if (botId && !config.params.bot_id) config.params.bot_id = botId;
     if (userId && !config.params.user_id) config.params.user_id = userId;
+    if (source) config.params.source = source;
   }
   return config;
 });
