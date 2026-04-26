@@ -66,13 +66,14 @@ api.interceptors.request.use((config) => {
     if (!isFree) {
       const token = localStorage.getItem('auth_token');
       if (token) config.headers.Authorization = `Bearer ${token}`;
-      
-      if (!token) {
-        const tg = (window as any)?.Telegram?.WebApp;
-        const maxWA = (window as any)?.WebApp;
-        const initData = tg?.initData || maxWA?.initData;
-        if (initData) config.headers['X-Init-Data'] = initData;
-      }
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      const tg = (window as any)?.Telegram?.WebApp;
+      const maxWA = (window as any)?.WebApp;
+      const initData = tg?.initData || maxWA?.initData;
+      if (initData) config.headers['X-Init-Data'] = initData;
     }
 
     const botId = getBotId();

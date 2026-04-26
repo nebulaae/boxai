@@ -12,20 +12,19 @@ import { useHaptic } from '@/hooks/useHaptic';
 import { cn } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 
+import { getAppSource } from '@/lib/source';
+
 type AppEnv = 'telegram' | 'max' | 'browser';
 type LoginView = 'main' | 'email-login' | 'email-register';
 
-function detectEnv(): AppEnv {
-  if (typeof window === 'undefined') return 'browser';
+function getPlatformInitData(): string | null {
+  if (typeof window === 'undefined') return null;
   const tg = (window as any)?.Telegram?.WebApp;
-  if (tg?.initData) return 'telegram';
+  if (tg?.initData) return tg.initData;
   const maxWA = (window as any)?.WebApp;
-  if (maxWA?.initData) return 'max';
-  return 'browser';
+  return maxWA?.initData || null;
 }
-function getMaxInitData(): string | null {
-  return (window as any)?.WebApp?.initData || null;
-}
+
 function saveSessionAuth(
   hash: string,
   sd: { id: number; time: number },
@@ -100,8 +99,6 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-import { getAppSource } from '@/lib/source';
-
 export const Login = () => {
   const router = useRouter();
   const { user, login, isLoading: authLoading } = useAuth();
@@ -146,7 +143,7 @@ export const Login = () => {
 
     const env = source as AppEnv;
     const tg = (window as any)?.Telegram?.WebApp;
-    const initData = env === 'telegram' ? tg?.initData : getMaxInitData();
+    const initData = env === 'telegram' ? tg?.initData : getPlatformInitData();
     if (!initData) return;
     attempted.current = true;
     setAutoLogging(true);
@@ -214,7 +211,11 @@ export const Login = () => {
     try {
       const { data } = await api.post(
         `/api/auth/login/email?bot_id=${bot?.bot_id}`,
-        { email: email.trim(), password }
+        {
+          email: email.trim(),
+          password,
+          initData: getPlatformInitData(),
+        }
       );
       if (data.token) {
         localStorage.setItem('auth_token', data.token);
@@ -262,7 +263,13 @@ export const Login = () => {
     try {
       const { data } = await api.post(
         `/api/auth/create/email?bot_id=${bot?.bot_id}`,
-        { email: email.trim(), password, name: name.trim(), lang: locale }
+        {
+          email: email.trim(),
+          password,
+          name: name.trim(),
+          lang: locale,
+          initData: getPlatformInitData(),
+        }
       );
       if (!data.success) throw new Error(data.error || t('errorRegister'));
       haptic.success();
