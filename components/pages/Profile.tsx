@@ -49,7 +49,7 @@ const Card = ({
         'rounded-2xl bg-white/[.03] border border-white/[.07]',
         'shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
         onClick &&
-          'cursor-pointer hover:bg-white/[.05] active:scale-[0.98] transition-all duration-150',
+        'cursor-pointer hover:bg-white/[.05] active:scale-[0.98] transition-all duration-150',
         className
       )}
     >
@@ -79,19 +79,19 @@ export const Profile = () => {
   const [copiedRef, setCopiedRef] = useState(false);
 
   const STATUS: Record<string, { icon: string; color: string; label: string }> =
-    {
-      completed: {
-        icon: '✓',
-        color: '#6ee7b7',
-        label: t('statusCompleted'),
-      },
-      error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
-      processing: {
-        icon: '⏳',
-        color: '#fde68a',
-        label: t('statusProcessing'),
-      },
-    };
+  {
+    completed: {
+      icon: '✓',
+      color: '#6ee7b7',
+      label: t('statusCompleted'),
+    },
+    error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
+    processing: {
+      icon: '⏳',
+      color: '#fde68a',
+      label: t('statusProcessing'),
+    },
+  };
 
   const tokens = userData?.user?.tokens ?? 0;
   const isPremium = userData?.user?.premium ?? false;
@@ -108,21 +108,45 @@ export const Profile = () => {
       ? `https://t.me/${bot.bot_username}?start=${userId}`
       : null;
 
-  const handleTopUp = () => {
+  const PAYMENT_LINK_KEY = `payment_link_${bot?.bot_id || 'default'}`;
+
+  const handleTopUp = async () => {
     haptic.medium();
+
     if (!bot?.bot_id) {
       toast.error(t('botNotDefined'));
       return;
     }
-    import('@/lib/api').then(({ default: api }) => {
-      api
-        .get('/api/payment-link', { params: { bot_id: bot.bot_id } })
-        .then(({ data }) => {
-          if (data.success && data.url) window.open(data.url, '_blank');
-          else toast.error(t('paymentLinkUnavailable'));
-        })
-        .catch(() => toast.error(t('paymentLinkError')));
-    });
+
+    try {
+      // 1. Проверяем localStorage
+      const saved = localStorage.getItem(PAYMENT_LINK_KEY);
+
+      if (saved) {
+        window.open(saved, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      // 2. Если нет — делаем запрос
+      const { default: api } = await import('@/lib/api');
+
+      const { data } = await api.get('/api/payment-link', {
+        params: { bot_id: bot.bot_id },
+      });
+
+      if (data?.success && data?.url) {
+        // сохраняем
+        localStorage.setItem(PAYMENT_LINK_KEY, data.url);
+
+        // открываем
+        window.open(data.url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      toast.error(t('paymentLinkUnavailable'));
+    } catch (error) {
+      toast.error(t('paymentLinkError'));
+    }
   };
 
   const handleCopyToken = (token: string) => {
