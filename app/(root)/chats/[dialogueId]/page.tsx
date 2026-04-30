@@ -66,7 +66,7 @@ function readStoredModel(id: string) {
         version: string;
         role_id: number | null;
       };
-  } catch { }
+  } catch {}
   return null;
 }
 function writeStoredModel(
@@ -80,7 +80,7 @@ function writeStoredModel(
       STORAGE_KEY(id),
       JSON.stringify({ model, version, role_id })
     );
-  } catch { }
+  } catch {}
 }
 
 function getDialogueModel(
@@ -559,7 +559,7 @@ export default function ChatPage() {
                         'bg-white/[.03] border border-white/[.06]',
                         'hover:bg-white/[.06] active:scale-[0.97] transition-all duration-150',
                         selectedRoleId === role.id &&
-                        'border-white/[.14] bg-white/[.06]'
+                          'border-white/[.14] bg-white/[.06]'
                       )}
                     >
                       <div className="w-9 h-9 rounded-xl overflow-hidden border border-white/[.10] shrink-0">

@@ -215,7 +215,7 @@ export const Chats = () => {
                       {chat.title || displayName}
                     </div>
                     <div className="text-[12px] text-white/30 mt-0.5">
-                      {chat.title === null ? null :displayName}
+                      {chat.title === null ? null : displayName}
                     </div>
                   </div>
 

@@ -49,7 +49,7 @@ const Card = ({
         'rounded-2xl bg-white/[.03] border border-white/[.07]',
         'shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]',
         onClick &&
-        'cursor-pointer hover:bg-white/[.05] active:scale-[0.98] transition-all duration-150',
+          'cursor-pointer hover:bg-white/[.05] active:scale-[0.98] transition-all duration-150',
         className
       )}
     >
@@ -79,19 +79,19 @@ export const Profile = () => {
   const [copiedRef, setCopiedRef] = useState(false);
 
   const STATUS: Record<string, { icon: string; color: string; label: string }> =
-  {
-    completed: {
-      icon: '✓',
-      color: '#6ee7b7',
-      label: t('statusCompleted'),
-    },
-    error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
-    processing: {
-      icon: '⏳',
-      color: '#fde68a',
-      label: t('statusProcessing'),
-    },
-  };
+    {
+      completed: {
+        icon: '✓',
+        color: '#6ee7b7',
+        label: t('statusCompleted'),
+      },
+      error: { icon: '✕', color: '#fca5a5', label: t('statusError') },
+      processing: {
+        icon: '⏳',
+        color: '#fde68a',
+        label: t('statusProcessing'),
+      },
+    };
 
   const tokens = userData?.user?.tokens ?? 0;
   const isPremium = userData?.user?.premium ?? false;
